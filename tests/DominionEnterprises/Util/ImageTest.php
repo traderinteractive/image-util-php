@@ -4,10 +4,12 @@ namespace DominionEnterprises\Util;
 
 final class ImageTest extends \PHPUnit_Framework_TestCase
 {
+    private $_sourceFilesDir;
     private $_tempDir;
 
     public function setUp()
     {
+        $this->_sourceFilesDir = dirname(dirname(__DIR__)) . '/_files';
         $this->_tempDir = sys_get_temp_dir() . '/imageUtilTest';
         foreach (glob("{$this->_tempDir}/*") as $file) {
             unlink($file);
@@ -290,10 +292,8 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
     {
         $destPath = "{$this->_tempDir}/dest.jpeg";
 
-        $source = new \Imagick('pattern:gray0');
+        $source = new \Imagick("{$this->_sourceFilesDir}/exif.jpg");
         $source->setImageFormat('png');
-        $source->setImageProperty('exif:test', 'test');
-        $this->assertSame('test', $source->getImageProperty('exif:test'));
 
         Image::write(
             $source,
@@ -303,7 +303,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
         $destImage = new \Imagick($destPath);
 
-        $this->assertFalse($destImage->getImageProperty('exif:test'));
+        $this->assertSame(0, count($destImage->getImageProperties('exif:*')));
         $this->assertSame('JPEG', $destImage->getImageFormat());
 
         $directoryPermissions = substr(sprintf('%o', fileperms($this->_tempDir)), -4);
@@ -361,5 +361,45 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
     public function write_nonBoolStripHeaders()
     {
         Image::write(new \Imagick(), 'not under test', array('stripHeaders' => 'not bool'));
+    }
+
+    /**
+     * Verify that stripHeaders strips exif headers.
+     *
+     * @test
+     */
+    public function stripHeaders()
+    {
+        $path = "{$this->_tempDir}/stripHeaders.jpg";
+
+        mkdir($this->_tempDir);
+        copy("{$this->_sourceFilesDir}/exif.jpg", $path);
+
+        Image::stripHeaders($path);
+
+        $imagick = new \Imagick($path);
+        $this->assertSame(0, count($imagick->getImageProperties('exif:*')));
+    }
+
+    /**
+     * Verify that stripHeaders fails with a non-string path.
+     *
+     * @test
+     * @expectedException \InvalidArgumentException
+     */
+    public function stripHeaders_nonstringPath()
+    {
+        Image::stripHeaders(true);
+    }
+
+    /**
+     * Verify that stripHeaders fails with a missing image.
+     *
+     * @test
+     * @expectedException \ImagickException
+     */
+    public function stripHeaders_missingImage()
+    {
+        Image::stripHeaders("{$this->_tempDir}/doesnotexist.jpg");
     }
 }
