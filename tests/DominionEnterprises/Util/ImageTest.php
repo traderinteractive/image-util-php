@@ -292,10 +292,8 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
     {
         $destPath = "{$this->_tempDir}/dest.jpeg";
 
-        $source = new \Imagick('pattern:gray0');
+        $source = new \Imagick("{$this->_sourceFilesDir}/exif.jpg");
         $source->setImageFormat('png');
-        $source->setImageProperty('exif:test', 'test');
-        $this->assertSame('test', $source->getImageProperty('exif:test'));
 
         Image::write(
             $source,
@@ -305,7 +303,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
         $destImage = new \Imagick($destPath);
 
-        $this->assertFalse($destImage->getImageProperty('exif:test'));
+        $this->assertSame(0, count($destImage->getImageProperties('exif:*')));
         $this->assertSame('JPEG', $destImage->getImageFormat());
 
         $directoryPermissions = substr(sprintf('%o', fileperms($this->_tempDir)), -4);
