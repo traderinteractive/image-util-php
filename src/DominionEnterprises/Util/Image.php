@@ -260,4 +260,31 @@ final class Image
             throw new \Exception('chmod() returned false');//@codeCoverageIgnore
         }
     }
+
+    /**
+     * Strips the headers (exif, etc) from an image at the given path.
+     *
+     * @param string $path The image path.
+     * @return void
+     * @throws \InvalidArgumentException if $path is not a string
+     * @throws \Exception if there is a failure stripping the headers
+     * @throws \Exception if there is a failure writing the image back to path
+     */
+    public static function stripHeaders($path)
+    {
+        if (!is_string($path)) {
+            throw new \InvalidArgumentException('$path was not a string');
+        }
+
+        $imagick = new \Imagick($path);
+        if ($imagick->stripImage() !== true) {
+            //cumbersome to test
+            throw new \Exception('Imagick::stripImage() did not return true');//@codeCoverageIgnore
+        }
+
+        if ($imagick->writeImage($path) !== true) {
+            //cumbersome to test
+            throw new \Exception('Imagick::writeImage() did not return true');//@codeCoverageIgnore
+        }
+    }
 }
