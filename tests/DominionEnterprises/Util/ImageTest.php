@@ -30,12 +30,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
         $source = new \Imagick('pattern:gray0');
         $source->scaleImage(100, 50);
 
-        $imagick = Image::resize(
-            $source,
-            10,
-            40,
-            array('color' => 'white', 'maxWidth' => 10000, 'maxHeight' => 10000, 'format' => 'jpeg', 'stripHeaders' => true)
-        );
+        $imagick = Image::resize($source, 10, 40, array('color' => 'white', 'maxWidth' => 10000, 'maxHeight' => 10000));
 
         //making sure source didnt resize
         $this->assertSame(100, $source->getImageWidth());
@@ -208,7 +203,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $boxWidth was not between 0 and $options["maxWidth"]
+     * @expectedExceptionMessage a $boxSizes width was not between 0 and $options["maxWidth"]
      */
     public function resize_zeroBoxWidth()
     {
@@ -218,7 +213,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $boxWidth was not between 0 and $options["maxWidth"]
+     * @expectedExceptionMessage a $boxSizes width was not between 0 and $options["maxWidth"]
      */
     public function resize_largeBoxWidth()
     {
@@ -228,7 +223,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $boxHeight was not between 0 and $options["maxHeight"]
+     * @expectedExceptionMessage a $boxSizes height was not between 0 and $options["maxHeight"]
      */
     public function resize_zeroBoxHeight()
     {
@@ -238,7 +233,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $boxHeight was not between 0 and $options["maxHeight"]
+     * @expectedExceptionMessage a $boxSizes height was not between 0 and $options["maxHeight"]
      */
     public function resize_largeBoxHeight()
     {
@@ -283,6 +278,119 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
     public function resize_nonBoolUpsize()
     {
         Image::resize(new \Imagick(), 10, 10, array('upsize' => 'not bool'));
+    }
+
+    /**
+     * Downsize ratio 2.0 to 0.25 and 2.0 to 4.0
+     *
+     * @test
+     */
+    public function resizeMulti_downsizeToMoreVerticalAndMoreHorizontalAspect()
+    {
+        $source = new \Imagick('pattern:gray0');
+        $source->scaleImage(100, 50);
+
+        $results = Image::resizeMulti($source, array(array('width' => 10, 'height' => 40), array('width' => 40, 'height' => 10)));
+        $imagickOne = $results[0];
+        $imagickTwo = $results[1];
+
+        //making sure source didnt resize
+        $this->assertSame(100, $source->getImageWidth());
+        $this->assertSame(50, $source->getImageHeight());
+
+        //check $imagick1
+
+        $this->assertSame(10, $imagickOne->getImageWidth());
+        $this->assertSame(40, $imagickOne->getImageHeight());
+
+        $oneWhiteBarTop = $imagickOne->getImagePixelColor(4, 16)->getHsl();
+        $oneWhiteBarBottom = $imagickOne->getImagePixelColor(4, 22)->getHsl();
+
+        $oneImageLeft = $imagickOne->getImagePixelColor(0, 19)->getHsl();
+        $oneImageRight = $imagickOne->getImagePixelColor(9, 19)->getHsl();
+        $oneImageTop = $imagickOne->getImagePixelColor(4, 17)->getHsl();
+        $oneImageBottom = $imagickOne->getImagePixelColor(4, 21)->getHsl();
+
+        $this->assertGreaterThan(0.9, $oneWhiteBarTop['luminosity']);
+        $this->assertGreaterThan(0.9, $oneWhiteBarBottom['luminosity']);
+
+        $this->assertLessThan(0.1, $oneImageLeft['luminosity']);
+        $this->assertLessThan(0.1, $oneImageRight['luminosity']);
+        $this->assertLessThan(0.1, $oneImageTop['luminosity']);
+        $this->assertLessThan(0.1, $oneImageBottom['luminosity']);
+
+        //check $imagick2
+
+        $this->assertSame(40, $imagickTwo->getImageWidth());
+        $this->assertSame(10, $imagickTwo->getImageHeight());
+
+        $twoWhiteBarLeft = $imagickTwo->getImagePixelColor(9, 4)->getHsl();
+        $twoWhiteBarRight = $imagickTwo->getImagePixelColor(30, 4)->getHsl();
+
+        $twoImageLeft = $imagickTwo->getImagePixelColor(10, 4)->getHsl();
+        $twoImageRight = $imagickTwo->getImagePixelColor(29, 4)->getHsl();
+        $twoImageTop = $imagickTwo->getImagePixelColor(19, 0)->getHsl();
+        $twoImageBottom = $imagickTwo->getImagePixelColor(19, 9)->getHsl();
+
+        $this->assertGreaterThan(0.9, $twoWhiteBarLeft['luminosity']);
+        $this->assertGreaterThan(0.9, $twoWhiteBarRight['luminosity']);
+
+        $this->assertLessThan(0.1, $twoImageLeft['luminosity']);
+        $this->assertLessThan(0.1, $twoImageRight['luminosity']);
+        $this->assertLessThan(0.1, $twoImageTop['luminosity']);
+        $this->assertLessThan(0.1, $twoImageBottom['luminosity']);
+    }
+
+    /**
+     * @test
+     */
+    public function resizeMulti_performance()
+    {
+        $source = new \Imagick('pattern:gray0');
+        $source->scaleImage(2000, 500);
+
+        $count = 10;
+
+        $beforeSingle = microtime(true);
+        for ($i = 0; $i < $count; ++$i) {
+            Image::resize($source, 1100, 400);
+            Image::resize($source, 100, 400);
+            Image::resize($source, 10, 40);
+        }
+
+        $singleTime = microtime(true) - $beforeSingle;
+
+        $beforeMulti = microtime(true);
+        for ($i = 0; $i < $count; ++$i) {
+            Image::resizeMulti(
+                $source,
+                array(array('width' => 1100, 'height' => 400), array('width' => 100, 'height' => 400), array('width' => 10, 'height' => 40))
+            );
+        }
+
+        $multiTime = microtime(true) - $beforeMulti;
+
+        $this->assertLessThan($singleTime, $multiTime * 0.75);
+    }
+
+    /**
+     * @test
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage a width in a $boxSizes value was not an int
+     */
+    public function resizeMulti_nonIntWidth()
+    {
+        Image::resizeMulti(new \Imagick(), array(array('width' => true, 'height' => 10)));
+    }
+
+    /**
+     * @test
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage a height in a $boxSizes value was not an int
+     */
+    public function resizeMulti_nonIntHeight()
+    {
+        Image::resizeMulti(new \Imagick(), array(array('width' => 10, 'height' => true)));
     }
 
     /**
