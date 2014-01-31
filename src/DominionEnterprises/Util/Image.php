@@ -5,11 +5,19 @@ namespace DominionEnterprises\Util;
 final class Image
 {
     /**
-     * resizes an image into a bounding box. Maintains aspect ratio, extra space filled with given color.
+     * Calls @see resizeMulti() with $boxWidth and $boxHeight as a single element in $boxSizes
+     */
+    public static function resize(\Imagick $source, $boxWidth, $boxHeight, array $options = array())
+    {
+        $results = self::resizeMulti($source, array(array('width' => $boxWidth, 'height' => $boxHeight)), $options);
+        return $results[0];
+    }
+
+    /**
+     * resizes images into a bounding box. Maintains aspect ratio, extra space filled with given color.
      *
      * @param \Imagick $source source image to resize. Will not modify
-     * @param int $boxWidth width of the resulting bounding box
-     * @param int $boxHeight height of the resulting bounding box
+     * @param array $boxSizes resulting bounding boxes. Each value should be an array with width and height, both integers
      * @param array $options options
      *     string color (default white) background color. Any supported from
      *         http://www.imagemagick.org/script/color.php#color_names
@@ -17,25 +25,26 @@ final class Image
      *     int maxWidth (default 10000) max width allowed for $boxWidth
      *     int maxHeight (default 10000) max height allowed for $boxHeight
      *
-     * @return \Imagick the image resized
+     * @return array array of \Imagick objects resized. Keys maintained from $boxSizes
      *
      * @throws \InvalidArgumentException if $options["color"] was not a string
      * @throws \InvalidArgumentException if $options["upsize"] was not a bool
      * @throws \InvalidArgumentException if $options["maxWidth"] was not an int
      * @throws \InvalidArgumentException if $options["maxHeight"] was not an int
-     * @throws \InvalidArgumentException if $boxWidth was not between 0 and $options["maxWidth"]
-     * @throws \InvalidArgumentException if $boxHeight was not between 0 and $options["maxHeight"]
+     * @throws \InvalidArgumentException if a width in a $boxSizes value was not an int
+     * @throws \InvalidArgumentException if a height in a $boxSizes value was not an int
+     * @throws \InvalidArgumentException if a $boxSizes width was not between 0 and $options["maxWidth"]
+     * @throws \InvalidArgumentException if a $boxSizes height was not between 0 and $options["maxHeight"]
      * @throws \Exception
      */
-    public static function resize(\Imagick $source, $boxWidth, $boxHeight, array $options = array())
+    public static function resizeMulti(\Imagick $source, array $boxSizes, array $options = array())
     {
         //algorithm inspiration from http://today.java.net/pub/a/today/2007/04/03/perils-of-image-getscaledinstance.html
         //use of 2x2 binning is arguably the best quality one will get downsizing and is what lots of hardware does in the photography field,
-        //while being reasonably fast
-        //upsizing is more subjective but you can't get much better than bicubic which is what is used here.
+        //while being reasonably fast. Upsizing is more subjective but you can't get much better than bicubic which is what is used here.
 
         $color = 'white';
-        if (array_key_exists('color', $options)) {
+        if (isset($options['color'])) {
             $color = $options['color'];
             if (!is_string($color)) {
                 throw new \InvalidArgumentException('$options["color"] was not a string');
@@ -43,7 +52,7 @@ final class Image
         }
 
         $upsize = false;
-        if (array_key_exists('upsize', $options)) {
+        if (isset($options['upsize'])) {
             $upsize = $options['upsize'];
             if ($upsize !== true && $upsize !== false) {
                 throw new \InvalidArgumentException('$options["upsize"] was not a bool');
@@ -51,7 +60,7 @@ final class Image
         }
 
         $maxWidth = 10000;
-        if (array_key_exists('maxWidth', $options)) {
+        if (isset($options['maxWidth'])) {
             $maxWidth = $options['maxWidth'];
             if (!is_int($maxWidth)) {
                 throw new \InvalidArgumentException('$options["maxWidth"] was not an int');
@@ -59,114 +68,142 @@ final class Image
         }
 
         $maxHeight = 10000;
-        if (array_key_exists('maxHeight', $options)) {
+        if (isset($options['maxHeight'])) {
             $maxHeight = $options['maxHeight'];
             if (!is_int($maxHeight)) {
                 throw new \InvalidArgumentException('$options["maxHeight"] was not an int');
             }
         }
 
-        if ($boxWidth > $maxWidth || $boxWidth <= 0) {
-            throw new \InvalidArgumentException('$boxWidth was not between 0 and $options["maxWidth"]');
+        foreach ($boxSizes as $boxSizeKey => $boxSize) {
+            if (!isset($boxSize['width']) || !is_int($boxSize['width'])) {
+                throw new \InvalidArgumentException('a width in a $boxSizes value was not an int');
+            }
+
+            if (!isset($boxSize['height']) || !is_int($boxSize['height'])) {
+                throw new \InvalidArgumentException('a height in a $boxSizes value was not an int');
+            }
+
+            if ($boxSize['width'] > $maxWidth || $boxSize['width'] <= 0) {
+                throw new \InvalidArgumentException('a $boxSizes width was not between 0 and $options["maxWidth"]');
+            }
+
+            if ($boxSize['height'] > $maxHeight || $boxSize['height'] <= 0) {
+                throw new \InvalidArgumentException('a $boxSizes height was not between 0 and $options["maxHeight"]');
+            }
         }
 
-        if ($boxHeight > $maxHeight || $boxHeight <= 0) {
-            throw new \InvalidArgumentException('$boxHeight was not between 0 and $options["maxHeight"]');
-        }
+        $results = array();
+        $cloneCache = array();
+        foreach ($boxSizes as $boxSizeKey => $boxSize) {
+            $boxWidth = $boxSize['width'];
+            $boxHeight = $boxSize['height'];
 
-        $clone = clone $source;
+            $clone = clone $source;
 
-        $width = $clone->getImageWidth();
-        $height = $clone->getImageHeight();
+            $width = $clone->getImageWidth();
+            $height = $clone->getImageHeight();
 
-        //ratio over 1 is horizontal, under 1 is vertical
-        $boxRatio = (double)$boxWidth / (double)$boxHeight;
-        $originalRatio = (double)$width / (double)$height;//height should be positive since I didnt find a way you could get zero into imagick
+            //ratio over 1 is horizontal, under 1 is vertical
+            $boxRatio = $boxWidth / $boxHeight;
+            $originalRatio = $width / $height;//height should be positive since I didnt find a way you could get zero into imagick
 
-        $targetWidth = null;
-        $targetHeight = null;
-        $targetX = null;
-        $targetY = null;
-
-        //if box is more vertical than original
-        if ($boxRatio < $originalRatio) {
-            $targetWidth = $boxWidth;
-            $targetHeight = (int)((double)$boxWidth / $originalRatio);
-
-            $targetX = 0;
-            $targetY = ($boxHeight - $targetHeight) / 2;
-        } else {
-            $targetWidth = (int)((double)$boxHeight * $originalRatio);
-            $targetHeight = $boxHeight;
-
-            $targetX = ($boxWidth - $targetWidth) / 2;
-            $targetY = 0;
-        }
-
-        //do downsize on dimensions that need it by halfs (2x2 binning is a common name)
-        while (true) {
-            $widthReduced = false;
-            if ($width > $targetWidth) {
-                $widthReduced = true;
-                $width /= 2;
-                if ($width < $targetWidth) {
-                    $width = $targetWidth;
+            $targetWidth = null;
+            $targetHeight = null;
+            $targetX = null;
+            $targetY = null;
+            if ($width < $boxWidth && $height < $boxHeight && !$upsize) {
+                $targetWidth = $width;
+                $targetHeight = $height;
+                $targetX = ($boxWidth - $width) / 2;
+                $targetY = ($boxHeight - $height) / 2;
+            } else {
+                //if box is more vertical than original
+                if ($boxRatio < $originalRatio) {
+                    $targetWidth = $boxWidth;
+                    $targetHeight = (int)((double)$boxWidth / $originalRatio);
+                    $targetX = 0;
+                    $targetY = ($boxHeight - $targetHeight) / 2;
+                } else {
+                    $targetWidth = (int)((double)$boxHeight * $originalRatio);
+                    $targetHeight = $boxHeight;
+                    $targetX = ($boxWidth - $targetWidth) / 2;
+                    $targetY = 0;
                 }
             }
 
-            $heightReduced = false;
-            if ($height > $targetHeight) {
-                $heightReduced = true;
-                $height /= 2;
-                if ($height < $targetHeight) {
-                    $height = $targetHeight;
+            //do iterative downsize by halfs (2x2 binning is a common name) on dimensions that are bigger than target width and height
+            while (true) {
+                $widthReduced = false;
+                $widthIsHalf = false;
+                if ($width > $targetWidth) {
+                    $width = (int)($width / 2);
+                    $widthReduced = true;
+                    $widthIsHalf = true;
+                    if ($width < $targetWidth) {
+                        $width = $targetWidth;
+                        $widthIsHalf = false;
+                    }
+                }
+
+                $heightReduced = false;
+                $heightIsHalf = false;
+                if ($height > $targetHeight) {
+                    $height = (int)($height / 2);
+                    $heightReduced = true;
+                    $heightIsHalf = true;
+                    if ($height < $targetHeight) {
+                        $height = $targetHeight;
+                        $heightIsHalf = false;
+                    }
+                }
+
+                if (!$widthReduced && !$heightReduced) {
+                    break;
+                }
+
+                $cacheKey = "{$width}x{$height}";
+                if (isset($cloneCache[$cacheKey])) {
+                    $clone = clone $cloneCache[$cacheKey];
+                    continue;
+                }
+
+                if ($clone->resizeImage($width, $height, \Imagick::FILTER_BOX, 1.0) !== true) {
+                    //cumbersome to test
+                    throw new \Exception('Imagick::resizeImage() did not return true');//@codeCoverageIgnore
+                }
+
+                if ($widthIsHalf && $heightIsHalf) {
+                    $cloneCache[$cacheKey] = clone $clone;
                 }
             }
 
-            if (!$widthReduced && !$heightReduced) {
-                break;
-            }
-
-            if ($clone->resizeImage($width, $height, \Imagick::FILTER_BOX, 1.0) !== true) {
-                //cumbersome to test
-                throw new \Exception('Imagick::resizeImage() did not return true');//@codeCoverageIgnore
-            }
-        }
-
-        //upsize or set image edges if either dimension wasnt a downsize (because it didnt get to target width/height)
-        if ($width !== $targetWidth || $height !== $targetHeight) {
-            if ($upsize) {
+            if ($upsize && ($width < $targetWidth || $height < $targetHeight)) {
                 if ($clone->resizeImage($targetWidth, $targetHeight, \Imagick::FILTER_CUBIC, 1.0) !== true) {
                     //cumbersome to test
                     throw new \Exception('Imagick::resizeImage() did not return true');//@codeCoverageIgnore
                 }
-            } else {
-                if ($boxRatio < $originalRatio) {
-                    $targetX = ($targetWidth - $width) / 2;
-                    $targetY = ($boxHeight - $height) / 2;
-                } else {
-                    $targetX = ($boxWidth - $width) / 2;
-                    $targetY = ($targetHeight - $height) / 2;
-                }
             }
+
+            //put image in box
+            $canvas = new \Imagick();
+            if ($canvas->newImage($boxWidth, $boxHeight, $color) !== true) {
+                //cumbersome to test
+                throw new \Exception('Imagick::newImage() did not return true');//@codeCoverageIgnore
+            }
+
+            if ($canvas->compositeImage($clone, \Imagick::COMPOSITE_ATOP, $targetX, $targetY) !== true) {
+                //cumbersome to test
+                throw new \Exception('Imagick::compositeImage() did not return true');//@codeCoverageIgnore
+            }
+
+            //reason we are not supporting the options in self::write() here is because format, and strip headers are only relevant once written
+            //Imagick::stripImage() doesnt even have an effect until written
+            //also the user can just call that function with the resultant $canvas
+            $results[$boxSizeKey] = $canvas;
         }
 
-        //put image in box
-        $canvas = new \Imagick();
-        if ($canvas->newImage($boxWidth, $boxHeight, $color) !== true) {
-            //cumbersome to test
-            throw new \Exception('Imagick::newImage() did not return true');//@codeCoverageIgnore
-        }
-
-        if ($canvas->compositeImage($clone, \Imagick::COMPOSITE_ATOP, $targetX, $targetY) !== true) {
-            //cumbersome to test
-            throw new \Exception('Imagick::compositeImage() did not return true');//@codeCoverageIgnore
-        }
-
-        //reason we are not supporting the options in self::write() here is because format, and strip headers are only relevant once written
-        //Imagick::stripImage() doesnt even have an effect until written
-        //also the user can just call that fuction with the resultant $canvas
-        return $canvas;
+        return $results;
     }
 
     /**
