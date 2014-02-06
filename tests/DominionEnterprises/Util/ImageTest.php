@@ -396,6 +396,23 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function resizeMultiWriteTemp()
+    {
+        $source = new \Imagick('pattern:gray0');
+        $source->scaleImage(2000, 500);
+
+        $boxSizes = array(
+            array('width' => 1100, 'height' => 400, 'path' => "{$this->_tempDir}/dest1.jpeg"),
+            array('width' => 100, 'height' => 400, 'path' => "{$this->_tempDir}/dest2.jpeg"),
+            array('width' => 10, 'height' => 40, 'path' => "{$this->_tempDir}/dest3.jpeg"),
+        );
+
+        Image::resizeMultiWrite($source, $boxSizes);
+    }
+
+    /**
+     * @test
+     */
     public function write()
     {
         $destPath = "{$this->_tempDir}/dest.jpeg";
