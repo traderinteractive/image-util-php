@@ -9,7 +9,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->_sourceFilesDir = dirname(dirname(__DIR__)) . '/_files';
+        $this->_sourceFilesDir = __DIR__ . '/_files';
         $this->_tempDir = sys_get_temp_dir() . '/imageUtilTest';
         foreach (glob("{$this->_tempDir}/*") as $file) {
             unlink($file);
