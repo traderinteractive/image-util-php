@@ -2,6 +2,9 @@
 
 namespace DominionEnterprises\Util;
 
+/**
+ * @coversDefaultClass \DominionEnterprises\Util\Image
+ */
 final class ImageTest extends \PHPUnit_Framework_TestCase
 {
     private $_sourceFilesDir;
@@ -24,6 +27,8 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      * Downsize ratio 2.0 to 0.25
      *
      * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
      */
     public function resize_downsizeToMoreVerticalAspect()
     {
@@ -60,6 +65,8 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      * Downsize ratio 2.0 to 4.0
      *
      * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
      */
     public function resize_downsizeToMoreHorizontalAspect()
     {
@@ -96,6 +103,8 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      * Upsize ratio 2.0 to 4.0
      *
      * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
      */
     public function resize_upsizeToMoreHorizontalAspectWithoutGrow()
     {
@@ -132,6 +141,8 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      * Upsize ratio 2.0 to 4.0
      *
      * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
      */
     public function resize_upsizeToMoreHorizontalAspectWithGrow()
     {
@@ -168,6 +179,8 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      * Upsize ratio 2.0 to 4.0
      *
      * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
      */
     public function resize_upsizeToMoreVerticalAspect()
     {
@@ -202,6 +215,8 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage a $boxSizes width was not between 0 and $options["maxWidth"]
      */
@@ -212,6 +227,8 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage a $boxSizes width was not between 0 and $options["maxWidth"]
      */
@@ -222,6 +239,8 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage a $boxSizes height was not between 0 and $options["maxHeight"]
      */
@@ -232,6 +251,8 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage a $boxSizes height was not between 0 and $options["maxHeight"]
      */
@@ -242,6 +263,8 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage $options["color"] was not a string
      */
@@ -252,6 +275,8 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage $options["maxWidth"] was not an int
      */
@@ -262,6 +287,8 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage $options["maxHeight"] was not an int
      */
@@ -272,6 +299,8 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage $options["upsize"] was not a bool
      */
@@ -284,6 +313,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      * Downsize ratio 2.0 to 0.25 and 2.0 to 4.0
      *
      * @test
+     * @covers ::resizeMulti
      */
     public function resizeMulti_downsizeToMoreVerticalAndMoreHorizontalAspect()
     {
@@ -343,6 +373,8 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @covers ::resizeMulti
+     * @uses \DominionEnterprises\Util\Image::resize
      */
     public function resizeMulti_performance()
     {
@@ -375,6 +407,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @covers ::resizeMulti
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage a width in a $boxSizes value was not an int
      */
@@ -385,6 +418,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @covers ::resizeMulti
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage a height in a $boxSizes value was not an int
      */
@@ -395,6 +429,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @covers ::write
      */
     public function write()
     {
@@ -423,6 +458,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @covers ::write
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage $options["directoryMode"] was not an int
      */
@@ -433,6 +469,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @covers ::write
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage $options["fileMode"] was not an int
      */
@@ -443,6 +480,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @covers ::write
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage $destPath was not a string
      */
@@ -453,6 +491,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @covers ::write
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage $options["format"] was not a string
      */
@@ -463,6 +502,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @covers ::write
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage $options["stripHeaders"] was not a bool
      */
@@ -475,6 +515,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      * Verify that stripHeaders strips exif headers.
      *
      * @test
+     * @covers ::stripHeaders
      */
     public function stripHeaders()
     {
@@ -493,6 +534,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      * Verify that stripHeaders fails with a non-string path.
      *
      * @test
+     * @covers ::stripHeaders
      * @expectedException \InvalidArgumentException
      */
     public function stripHeaders_nonstringPath()
@@ -504,6 +546,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      * Verify that stripHeaders fails with a missing image.
      *
      * @test
+     * @covers ::stripHeaders
      * @expectedException \ImagickException
      */
     public function stripHeaders_missingImage()
