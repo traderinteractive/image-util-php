@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "a0086f0ddd5077996b767bfcc7c2b55e",
+    "hash": "bfad71f1630f6287455fee72614cab15",
     "packages": [
 
     ],
@@ -844,7 +844,7 @@
         "php": ">=5.3.2",
         "ext-imagick": "~3.0"
     },
-    "platform-dev": {
-        "lib-libxml": "*"
-    }
+    "platform-dev": [
+
+    ]
 }
