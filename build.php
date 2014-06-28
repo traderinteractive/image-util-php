@@ -22,7 +22,7 @@ if ($phpcsViolations > 0) {
 }
 
 $phpunitConfiguration = PHPUnit_Util_Configuration::getInstance(__DIR__ . '/phpunit.xml');
-$phpunitArguments = array('coverageHtml' => 'coverage', 'configuration' => $phpunitConfiguration);
+$phpunitArguments = array('coverageHtml' => __DIR__ . '/coverage', 'configuration' => $phpunitConfiguration);
 $testRunner = new PHPUnit_TextUI_TestRunner();
 $result = $testRunner->doRun($phpunitConfiguration->getTestSuiteConfiguration(), $phpunitArguments);
 if (!$result->wasSuccessful()) {
