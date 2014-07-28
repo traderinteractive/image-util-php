@@ -14,11 +14,11 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
     {
         $this->_sourceFilesDir = __DIR__ . '/_files';
         $this->_tempDir = sys_get_temp_dir() . '/imageUtilTest';
-        foreach (glob("{$this->_tempDir}/*") as $file) {
-            unlink($file);
-        }
-
         if (is_dir($this->_tempDir)) {
+            foreach (glob("{$this->_tempDir}/*") as $file) {
+                unlink($file);
+            }
+
             rmdir($this->_tempDir);
         }
     }
