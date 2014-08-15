@@ -324,4 +324,50 @@ final class Image
             throw new \Exception('Imagick::writeImage() did not return true');//@codeCoverageIgnore
         }
     }
+
+    /**
+     * Rotates the given image based on its current orientation. Then sets the orientation to be top left.
+     *
+     * @param \Imagick $source source image to be modified.
+     * @param string $backgroundColor Color to fill empty triangles left over from rotating the image.
+     *
+     * @return \Imagick The modified image.
+     *
+     * @throws \InvalidArgumentException if $backgroundColor is not a string.
+     * @throws \Exception if there is a failure rotating the image.
+     * @throws \Exception if there is a failure setting the topleft orientation.
+     */
+    public static function autoRotate(\Imagick $source, $backgroundColor = 'none')
+    {
+        if (!is_string($backgroundColor)) {
+            throw new \InvalidArgumentException('$backgroundColor was not a string');
+        }
+
+        $degrees = [
+            \Imagick::ORIENTATION_LEFTBOTTOM => -90,
+            \Imagick::ORIENTATION_BOTTOMLEFT => -90,
+            \Imagick::ORIENTATION_BOTTOMRIGHT => 180,
+            \Imagick::ORIENTATION_RIGHTBOTTOM => 180,
+            \Imagick::ORIENTATION_TOPRIGHT => 90,
+            \Imagick::ORIENTATION_RIGHTTOP => 90,
+        ];
+
+        $orientation = $source->getImageOrientation();
+        if (!isset($degrees[$orientation])) {
+            //orientation is undefined or top-left, no need to change
+            return $source;
+        }
+
+        if ($source->rotateImage(new \ImagickPixel($backgroundColor), $degrees[$orientation]) !== true) {
+            //cumbersome to test
+            throw new \Exception('Imagick::rotateImage() did not return true');//@codeCoverageIgnore
+        }
+
+        if ($source->setImageOrientation(\Imagick::ORIENTATION_TOPLEFT) !== true) {
+            //cumbersome to test
+            throw new \Exception('Imagick::setImageOrientation() did not return true');//@codeCoverageIgnore
+        }
+
+        return $source;
+    }
 }
