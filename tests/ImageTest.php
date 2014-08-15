@@ -35,7 +35,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
         $source = new \Imagick('pattern:gray0');
         $source->scaleImage(100, 50);
 
-        $imagick = Image::resize($source, 10, 40, array('color' => 'white', 'maxWidth' => 10000, 'maxHeight' => 10000));
+        $imagick = Image::resize($source, 10, 40, ['color' => 'white', 'maxWidth' => 10000, 'maxHeight' => 10000]);
 
         //making sure source didnt resize
         $this->assertSame(100, $source->getImageWidth());
@@ -149,7 +149,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
         $source = new \Imagick('pattern:gray0');
         $source->scaleImage(100, 50);
 
-        $imagick = Image::resize($source, 400, 100, array('upsize' => true));
+        $imagick = Image::resize($source, 400, 100, ['upsize' => true]);
 
         //making sure source didnt resize
         $this->assertSame(100, $source->getImageWidth());
@@ -234,7 +234,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      */
     public function resize_largeBoxWidth()
     {
-        Image::resize(new \Imagick(), 10001, 10, array('maxWidth' => 10000));
+        Image::resize(new \Imagick(), 10001, 10, ['maxWidth' => 10000]);
     }
 
     /**
@@ -258,7 +258,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      */
     public function resize_largeBoxHeight()
     {
-        Image::resize(new \Imagick(), 10, 10001, array('maxHeight' => 10000));
+        Image::resize(new \Imagick(), 10, 10001, ['maxHeight' => 10000]);
     }
 
     /**
@@ -270,7 +270,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      */
     public function resize_nonStringColor()
     {
-        Image::resize(new \Imagick(), 10, 10, array('color' => 0));
+        Image::resize(new \Imagick(), 10, 10, ['color' => 0]);
     }
 
     /**
@@ -282,7 +282,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      */
     public function resize_nonIntMaxWidth()
     {
-        Image::resize(new \Imagick(), 10, 10, array('maxWidth' => 'not int'));
+        Image::resize(new \Imagick(), 10, 10, ['maxWidth' => 'not int']);
     }
 
     /**
@@ -294,7 +294,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      */
     public function resize_nonIntMaxHeight()
     {
-        Image::resize(new \Imagick(), 10, 10, array('maxHeight' => 'not int'));
+        Image::resize(new \Imagick(), 10, 10, ['maxHeight' => 'not int']);
     }
 
     /**
@@ -306,7 +306,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      */
     public function resize_nonBoolUpsize()
     {
-        Image::resize(new \Imagick(), 10, 10, array('upsize' => 'not bool'));
+        Image::resize(new \Imagick(), 10, 10, ['upsize' => 'not bool']);
     }
 
     /**
@@ -320,7 +320,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
         $source = new \Imagick('pattern:gray0');
         $source->scaleImage(100, 50);
 
-        $results = Image::resizeMulti($source, array(array('width' => 10, 'height' => 40), array('width' => 40, 'height' => 10)));
+        $results = Image::resizeMulti($source, [['width' => 10, 'height' => 40], ['width' => 40, 'height' => 10]]);
         $imagickOne = $results[0];
         $imagickTwo = $results[1];
 
@@ -396,7 +396,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
         for ($i = 0; $i < $count; ++$i) {
             Image::resizeMulti(
                 $source,
-                array(array('width' => 1100, 'height' => 400), array('width' => 100, 'height' => 400), array('width' => 10, 'height' => 40))
+                [['width' => 1100, 'height' => 400], ['width' => 100, 'height' => 400], ['width' => 10, 'height' => 40]]
             );
         }
 
@@ -413,7 +413,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      */
     public function resizeMulti_nonIntWidth()
     {
-        Image::resizeMulti(new \Imagick(), array(array('width' => true, 'height' => 10)));
+        Image::resizeMulti(new \Imagick(), [['width' => true, 'height' => 10]]);
     }
 
     /**
@@ -424,7 +424,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      */
     public function resizeMulti_nonIntHeight()
     {
-        Image::resizeMulti(new \Imagick(), array(array('width' => 10, 'height' => true)));
+        Image::resizeMulti(new \Imagick(), [['width' => 10, 'height' => true]]);
     }
 
     /**
@@ -438,11 +438,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
         $source = new \Imagick("{$this->_sourceFilesDir}/exif.jpg");
         $source->setImageFormat('png');
 
-        Image::write(
-            $source,
-            $destPath,
-            array('format' => 'jpeg', 'directoryMode' => 0775, 'fileMode' => 0776, 'stripHeaders' => true)
-        );
+        Image::write($source, $destPath, ['format' => 'jpeg', 'directoryMode' => 0775, 'fileMode' => 0776, 'stripHeaders' => true]);
 
         $destImage = new \Imagick($destPath);
 
@@ -464,7 +460,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      */
     public function write_nonIntDirectoryMode()
     {
-        Image::write(new \Imagick(), 'not under test', array('directoryMode' => 'not int'));
+        Image::write(new \Imagick(), 'not under test', ['directoryMode' => 'not int']);
     }
 
     /**
@@ -475,7 +471,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      */
     public function write_nonIntFileMode()
     {
-        Image::write(new \Imagick(), 'not under test', array('fileMode' => 'not int'));
+        Image::write(new \Imagick(), 'not under test', ['fileMode' => 'not int']);
     }
 
     /**
@@ -497,7 +493,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      */
     public function write_nonStringFormat()
     {
-        Image::write(new \Imagick(), 'not under test', array('format' => true));
+        Image::write(new \Imagick(), 'not under test', ['format' => true]);
     }
 
     /**
@@ -508,7 +504,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      */
     public function write_nonBoolStripHeaders()
     {
-        Image::write(new \Imagick(), 'not under test', array('stripHeaders' => 'not bool'));
+        Image::write(new \Imagick(), 'not under test', ['stripHeaders' => 'not bool']);
     }
 
     /**

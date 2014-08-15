@@ -7,9 +7,9 @@ final class Image
     /**
      * Calls @see resizeMulti() with $boxWidth and $boxHeight as a single element in $boxSizes
      */
-    public static function resize(\Imagick $source, $boxWidth, $boxHeight, array $options = array())
+    public static function resize(\Imagick $source, $boxWidth, $boxHeight, array $options = [])
     {
-        $results = self::resizeMulti($source, array(array('width' => $boxWidth, 'height' => $boxHeight)), $options);
+        $results = self::resizeMulti($source, [['width' => $boxWidth, 'height' => $boxHeight]], $options);
         return $results[0];
     }
 
@@ -37,7 +37,7 @@ final class Image
      * @throws \InvalidArgumentException if a $boxSizes height was not between 0 and $options["maxHeight"]
      * @throws \Exception
      */
-    public static function resizeMulti(\Imagick $source, array $boxSizes, array $options = array())
+    public static function resizeMulti(\Imagick $source, array $boxSizes, array $options = [])
     {
         //algorithm inspiration from http://today.java.net/pub/a/today/2007/04/03/perils-of-image-getscaledinstance.html
         //use of 2x2 binning is arguably the best quality one will get downsizing and is what lots of hardware does in the photography field,
@@ -93,8 +93,8 @@ final class Image
             }
         }
 
-        $results = array();
-        $cloneCache = array();
+        $results = [];
+        $cloneCache = [];
         foreach ($boxSizes as $boxSizeKey => $boxSize) {
             $boxWidth = $boxSize['width'];
             $boxHeight = $boxSize['height'];
@@ -226,7 +226,7 @@ final class Image
      * @throws \InvalidArgumentException if $options["stripHeaders"] was not a bool
      * @throws \Exception
      */
-    public static function write(\Imagick $source, $destPath, array $options = array())
+    public static function write(\Imagick $source, $destPath, array $options = [])
     {
         if (!is_string($destPath)) {
             throw new \InvalidArgumentException('$destPath was not a string');
