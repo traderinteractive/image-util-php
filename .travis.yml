@@ -6,3 +6,4 @@ php:
 before_script:
   - printf "\n" | pecl install imagick
 script: ./build.php
+after_script: ./vendor/bin/coveralls -v
