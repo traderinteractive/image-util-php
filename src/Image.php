@@ -101,6 +101,23 @@ final class Image
 
             $clone = clone $source;
 
+            $orientation = $clone->getImageOrientation();
+            switch ($orientation)
+            {
+                case \Imagick::ORIENTATION_BOTTOMRIGHT:
+                    $clone->rotateimage('#fff', 180);
+                    $clone->stripImage();
+                    break;
+                case \Imagick::ORIENTATION_RIGHTTOP:
+                    $clone->rotateimage('#fff', 90);
+                    $clone->stripImage();
+                    break;
+                case \Imagick::ORIENTATION_LEFTBOTTOM:
+                    $clone->rotateimage('#fff', -90);
+                    $clone->stripImage();
+                    break;
+            }
+
             $width = $clone->getImageWidth();
             $height = $clone->getImageHeight();
 

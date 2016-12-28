@@ -310,6 +310,45 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Verify images are rotated according to EXIF header
+     * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
+     */
+    public function resize_orientation()
+    {
+        $files = [
+            "{$this->_sourceFilesDir}/bottom-right.jpg",
+            "{$this->_sourceFilesDir}/left-bottom.jpg",
+            "{$this->_sourceFilesDir}/right-top.jpg",
+            "{$this->_sourceFilesDir}/top-left.jpg",
+        ];
+
+        $imageResults = [];
+
+        foreach ($files as $file) {
+            $source = new \Imagick($file);
+            $imageWidth = $source->getimagewidth();
+            $imageHeight = $source->getimageheight();
+            $imageResults[] = Image::resize($source, $imageWidth, $imageHeight, []);
+
+        }
+
+        $this->assertSame(
+            ['r' => 254, 'g' => 0, 'b' => 0, 'a' => 1], $imageResults[0]->getImagePixelColor(0, 0)->getColor()
+        );
+        $this->assertSame(
+            ['r' => 0, 'g' => 0, 'b' => 0, 'a' => 1], $imageResults[1]->getImagePixelColor(0, 0)->getColor()
+        );
+        $this->assertSame(
+            ['r' => 0, 'g' => 255, 'b' => 1, 'a' => 1], $imageResults[2]->getImagePixelColor(0, 0)->getColor()
+        );
+        $this->assertSame(
+            ['r' => 0, 'g' => 0, 'b' => 254, 'a' => 1], $imageResults[3]->getImagePixelColor(0, 0)->getColor()
+        );
+    }
+
+    /**
      * Downsize ratio 2.0 to 0.25 and 2.0 to 4.0
      *
      * @test
