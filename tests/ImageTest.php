@@ -331,7 +331,6 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
             $imageWidth = $source->getimagewidth();
             $imageHeight = $source->getimageheight();
             $imageResults[] = Image::resize($source, $imageWidth, $imageHeight, []);
-
         }
 
         $this->assertSame(
