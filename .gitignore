@@ -1,3 +1,4 @@
 /vendor/
 /coverage/
 /clover.xml
+/nbproject/private/
