@@ -587,4 +587,64 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
     {
         Image::stripHeaders("{$this->_tempDir}/doesnotexist.jpg");
     }
+
+    /**
+     * Verify basic behavior of autoRotate().
+     *
+     * @test
+     * @covers ::autoRotate
+     */
+    public function autoRotate()
+    {
+        $imagick = new \Imagick();
+        $imagick->newImage(50, 100, new \ImagickPixel('blue'), 'jpeg');
+        $imagick->setImageOrientation(\Imagick::ORIENTATION_TOPRIGHT);
+
+        $originalWidth = $imagick->getImageWidth();
+        $originalHeight = $imagick->getImageHeight();
+
+        Image::autoRotate($imagick);
+
+        $this->assertSame(\Imagick::ORIENTATION_TOPLEFT, $imagick->getImageOrientation());
+        $this->assertSame($originalHeight, $imagick->getImageWidth());
+        $this->assertSame($originalWidth, $imagick->getImageHeight());
+    }
+
+    /**
+     * Verify image is unchanged when orientation is TOPLEFT
+     *
+     * @test
+     * @covers ::autoRotate
+     */
+    public function autoRotate_withTopLeftOrientation()
+    {
+        $imagick = new \Imagick();
+        $imagick->newImage(50, 100, new \ImagickPixel('blue'), 'jpeg');
+        $imagick->setImageOrientation(\Imagick::ORIENTATION_TOPLEFT);
+
+        $originalWidth = $imagick->getImageWidth();
+        $originalHeight = $imagick->getImageHeight();
+
+        Image::autoRotate($imagick);
+
+        $this->assertSame(\Imagick::ORIENTATION_TOPLEFT, $imagick->getImageOrientation());
+        $this->assertSame($originalWidth, $imagick->getImageWidth());
+        $this->assertSame($originalHeight, $imagick->getImageHeight());
+    }
+
+    /**
+     * Verify exception is thrown if $backgroundColor is not a string
+     *
+     * @test
+     * @covers ::autoRotate
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage $backgroundColor was not a string
+     */
+    public function autoRotate_withInvalidBackgroundColor()
+    {
+        $imagick = new \Imagick();
+        $imagick->newImage(50, 100, new \ImagickPixel('blue'), 'jpeg');
+        $imagick->setImageOrientation(\Imagick::ORIENTATION_TOPLEFT);
+        Image::autoRotate($imagick, true);
+    }
 }
