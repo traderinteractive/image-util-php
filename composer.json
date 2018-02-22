@@ -20,6 +20,9 @@
         }
     ],
     "license": "MIT",
+    "config": {
+        "sort-packages": true
+    },
     "require": {
         "php": "^7.0",
         "ext-imagick": "~3.0"
