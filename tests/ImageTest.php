@@ -1,9 +1,9 @@
 <?php
 
-namespace DominionEnterprises\Util;
+namespace TraderInteractive\Util;
 
 /**
- * @coversDefaultClass \DominionEnterprises\Util\Image
+ * @coversDefaultClass \TraderInteractive\Util\Image
  */
 final class ImageTest extends \PHPUnit_Framework_TestCase
 {
@@ -412,7 +412,7 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      * @covers ::resizeMulti
-     * @uses \DominionEnterprises\Util\Image::resize
+     * @uses \TraderInteractive\Util\Image::resize
      */
     public function resizeMulti_performance()
     {

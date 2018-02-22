@@ -31,6 +31,6 @@
         "dominionenterprises/dws-coding-standard": "~1.1"
     },
     "autoload": {
-        "psr-4": { "DominionEnterprises\\Util\\": "src" }
+        "psr-4": { "TraderInteractive\\Util\\": "src" }
     }
 }
