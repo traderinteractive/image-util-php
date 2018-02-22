@@ -17,7 +17,8 @@ final class Image
      * resizes images into a bounding box. Maintains aspect ratio, extra space filled with given color.
      *
      * @param \Imagick $source source image to resize. Will not modify
-     * @param array $boxSizes resulting bounding boxes. Each value should be an array with width and height, both integers
+     * @param array $boxSizes resulting bounding boxes. Each value should be an array with width and height, both
+     *                        integers
      * @param array $options options
      *     string color (default white) background color. Any supported from
      *         http://www.imagemagick.org/script/color.php#color_names
@@ -39,10 +40,10 @@ final class Image
      */
     public static function resizeMulti(\Imagick $source, array $boxSizes, array $options = []) : array
     {
-        //algorithm inspiration from http://today.java.net/pub/a/today/2007/04/03/perils-of-image-getscaledinstance.html
-        //use of 2x2 binning is arguably the best quality one will get downsizing and is what lots of hardware does in the photography field,
-        //while being reasonably fast. Upsizing is more subjective but you can't get much better than bicubic which is what is used here.
-
+        //algorithm inspired from http://today.java.net/pub/a/today/2007/04/03/perils-of-image-getscaledinstance.html
+        //use of 2x2 binning is arguably the best quality one will get downsizing and is what lots of hardware does in
+        //the photography field, while being reasonably fast. Upsizing is more subjective but you can't get much
+        //better than bicubic which is what is used here.
         $color = 'white';
         if (isset($options['color'])) {
             $color = $options['color'];
@@ -122,7 +123,8 @@ final class Image
 
             //ratio over 1 is horizontal, under 1 is vertical
             $boxRatio = $boxWidth / $boxHeight;
-            $originalRatio = $width / $height;//height should be positive since I didnt find a way you could get zero into imagick
+            //height should be positive since I didnt find a way you could get zero into imagick
+            $originalRatio = $width / $height;
 
             $targetWidth = null;
             $targetHeight = null;
@@ -148,7 +150,8 @@ final class Image
                 }
             }
 
-            //do iterative downsize by halfs (2x2 binning is a common name) on dimensions that are bigger than target width and height
+            //do iterative downsize by halfs (2x2 binning is a common name) on dimensions that are bigger than target
+            //width and height
             while (true) {
                 $widthReduced = false;
                 $widthIsHalf = false;
@@ -213,8 +216,8 @@ final class Image
                 throw new \Exception('Imagick::compositeImage() did not return true');//@codeCoverageIgnore
             }
 
-            //reason we are not supporting the options in self::write() here is because format, and strip headers are only relevant once written
-            //Imagick::stripImage() doesnt even have an effect until written
+            //reason we are not supporting the options in self::write() here is because format, and strip headers are
+            //only relevant once written Imagick::stripImage() doesnt even have an effect until written
             //also the user can just call that function with the resultant $canvas
             $results[$boxSizeKey] = $canvas;
         }
@@ -228,10 +231,11 @@ final class Image
      * @param \Imagick $source source image. Will not modify
      * @param string $destPath destination image path
      * @param array $options options
-     *     string format (default jpeg) format. Any supported from http://www.imagemagick.org/script/formats.php#supported
-     *     int directoryMode (default 0777) chmod mode for any parent directories created
-     *     int fileMode (default 0777) chmod mode for the resized image file
-     *     bool stripHeaders (default true) whether to strip headers (exif, etc). Is only reflected in $destPath, not returned clone
+     *     string format        (default jpeg) Any from http://www.imagemagick.org/script/formats.php#supported
+     *     int    directoryMode (default 0777) chmod mode for any parent directories created
+     *     int    fileMode      (default 0777) chmod mode for the resized image file
+     *     bool   stripHeaders  (default true) whether to strip headers (exif, etc). Is only reflected in $destPath,
+     *                                         not returned clone
      *
      * @return void
      *

@@ -9,19 +9,19 @@ use PHPUnit\Framework\TestCase;
  */
 final class ImageTest extends TestCase
 {
-    private $_sourceFilesDir;
-    private $_tempDir;
+    private $sourceFilesDir;
+    private $tempDir;
 
     public function setUp()
     {
-        $this->_sourceFilesDir = __DIR__ . '/_files';
-        $this->_tempDir = sys_get_temp_dir() . '/imageUtilTest';
-        if (is_dir($this->_tempDir)) {
-            foreach (glob("{$this->_tempDir}/*") as $file) {
+        $this->sourceFilesDir = __DIR__ . '/_files';
+        $this->tempDir = sys_get_temp_dir() . '/imageUtilTest';
+        if (is_dir($this->tempDir)) {
+            foreach (glob("{$this->tempDir}/*") as $file) {
                 unlink($file);
             }
 
-            rmdir($this->_tempDir);
+            rmdir($this->tempDir);
         }
     }
 
@@ -320,10 +320,10 @@ final class ImageTest extends TestCase
     public function resizeOrientation()
     {
         $files = [
-            "{$this->_sourceFilesDir}/bottom-right.jpg",
-            "{$this->_sourceFilesDir}/left-bottom.jpg",
-            "{$this->_sourceFilesDir}/right-top.jpg",
-            "{$this->_sourceFilesDir}/top-left.jpg",
+            "{$this->sourceFilesDir}/bottom-right.jpg",
+            "{$this->sourceFilesDir}/left-bottom.jpg",
+            "{$this->sourceFilesDir}/right-top.jpg",
+            "{$this->sourceFilesDir}/top-left.jpg",
         ];
 
         $imageResults = [];
@@ -476,19 +476,23 @@ final class ImageTest extends TestCase
      */
     public function write()
     {
-        $destPath = "{$this->_tempDir}/dest.jpeg";
+        $destPath = "{$this->tempDir}/dest.jpeg";
 
-        $source = new \Imagick("{$this->_sourceFilesDir}/exif.jpg");
+        $source = new \Imagick("{$this->sourceFilesDir}/exif.jpg");
         $source->setImageFormat('png');
 
-        Image::write($source, $destPath, ['format' => 'jpeg', 'directoryMode' => 0775, 'fileMode' => 0776, 'stripHeaders' => true]);
+        Image::write(
+            $source,
+            $destPath,
+            ['format' => 'jpeg', 'directoryMode' => 0775, 'fileMode' => 0776, 'stripHeaders' => true]
+        );
 
         $destImage = new \Imagick($destPath);
 
         $this->assertSame(0, count($destImage->getImageProperties('exif:*')));
         $this->assertSame('JPEG', $destImage->getImageFormat());
 
-        $directoryPermissions = substr(sprintf('%o', fileperms($this->_tempDir)), -4);
+        $directoryPermissions = substr(sprintf('%o', fileperms($this->tempDir)), -4);
         $filePermissions = substr(sprintf('%o', fileperms($destPath)), -4);
 
         $this->assertSame('0775', $directoryPermissions);
@@ -547,10 +551,10 @@ final class ImageTest extends TestCase
      */
     public function stripHeaders()
     {
-        $path = "{$this->_tempDir}/stripHeaders.jpg";
+        $path = "{$this->tempDir}/stripHeaders.jpg";
 
-        mkdir($this->_tempDir);
-        copy("{$this->_sourceFilesDir}/exif.jpg", $path);
+        mkdir($this->tempDir);
+        copy("{$this->sourceFilesDir}/exif.jpg", $path);
 
         Image::stripHeaders($path);
 
@@ -567,6 +571,6 @@ final class ImageTest extends TestCase
      */
     public function stripHeadersMissingImage()
     {
-        Image::stripHeaders("{$this->_tempDir}/doesnotexist.jpg");
+        Image::stripHeaders("{$this->tempDir}/doesnotexist.jpg");
     }
 }
