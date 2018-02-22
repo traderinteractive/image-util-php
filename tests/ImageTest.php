@@ -32,7 +32,7 @@ final class ImageTest extends TestCase
      * @covers ::resize
      * @covers ::resizeMulti
      */
-    public function resize_downsizeToMoreVerticalAspect()
+    public function resizeDownsizeToMoreVerticalAspect()
     {
         $source = new \Imagick('pattern:gray0');
         $source->scaleImage(100, 50);
@@ -70,7 +70,7 @@ final class ImageTest extends TestCase
      * @covers ::resize
      * @covers ::resizeMulti
      */
-    public function resize_downsizeToMoreHorizontalAspect()
+    public function resizeDownsizeToMoreHorizontalAspect()
     {
         $source = new \Imagick('pattern:gray0');
         $source->scaleImage(100, 50);
@@ -108,7 +108,7 @@ final class ImageTest extends TestCase
      * @covers ::resize
      * @covers ::resizeMulti
      */
-    public function resize_upsizeToMoreHorizontalAspectWithoutGrow()
+    public function resizeUpsizeToMoreHorizontalAspectWithoutGrow()
     {
         $source = new \Imagick('pattern:gray0');
         $source->scaleImage(100, 50);
@@ -146,7 +146,7 @@ final class ImageTest extends TestCase
      * @covers ::resize
      * @covers ::resizeMulti
      */
-    public function resize_upsizeToMoreHorizontalAspectWithGrow()
+    public function resizeUpsizeToMoreHorizontalAspectWithGrow()
     {
         $source = new \Imagick('pattern:gray0');
         $source->scaleImage(100, 50);
@@ -184,7 +184,7 @@ final class ImageTest extends TestCase
      * @covers ::resize
      * @covers ::resizeMulti
      */
-    public function resize_upsizeToMoreVerticalAspect()
+    public function resizeUpsizeToMoreVerticalAspect()
     {
         $source = new \Imagick('pattern:gray0');
         $source->scaleImage(100, 50);
@@ -222,7 +222,7 @@ final class ImageTest extends TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage a $boxSizes width was not between 0 and $options["maxWidth"]
      */
-    public function resize_zeroBoxWidth()
+    public function resizeZeroBoxWidth()
     {
         Image::resize(new \Imagick(), 0, 10);
     }
@@ -234,7 +234,7 @@ final class ImageTest extends TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage a $boxSizes width was not between 0 and $options["maxWidth"]
      */
-    public function resize_largeBoxWidth()
+    public function resizeLargeBoxWidth()
     {
         Image::resize(new \Imagick(), 10001, 10, ['maxWidth' => 10000]);
     }
@@ -246,7 +246,7 @@ final class ImageTest extends TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage a $boxSizes height was not between 0 and $options["maxHeight"]
      */
-    public function resize_zeroBoxHeight()
+    public function resizeZeroBoxHeight()
     {
         Image::resize(new \Imagick(), 10, 0);
     }
@@ -258,7 +258,7 @@ final class ImageTest extends TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage a $boxSizes height was not between 0 and $options["maxHeight"]
      */
-    public function resize_largeBoxHeight()
+    public function resizeLargeBoxHeight()
     {
         Image::resize(new \Imagick(), 10, 10001, ['maxHeight' => 10000]);
     }
@@ -270,7 +270,7 @@ final class ImageTest extends TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage $options["color"] was not a string
      */
-    public function resize_nonStringColor()
+    public function resizeNonStringColor()
     {
         Image::resize(new \Imagick(), 10, 10, ['color' => 0]);
     }
@@ -282,7 +282,7 @@ final class ImageTest extends TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage $options["maxWidth"] was not an int
      */
-    public function resize_nonIntMaxWidth()
+    public function resizeonIntMaxWidth()
     {
         Image::resize(new \Imagick(), 10, 10, ['maxWidth' => 'not int']);
     }
@@ -294,7 +294,7 @@ final class ImageTest extends TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage $options["maxHeight"] was not an int
      */
-    public function resize_nonIntMaxHeight()
+    public function resizeNonIntMaxHeight()
     {
         Image::resize(new \Imagick(), 10, 10, ['maxHeight' => 'not int']);
     }
@@ -306,7 +306,7 @@ final class ImageTest extends TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage $options["upsize"] was not a bool
      */
-    public function resize_nonBoolUpsize()
+    public function resizeNonBoolUpsize()
     {
         Image::resize(new \Imagick(), 10, 10, ['upsize' => 'not bool']);
     }
@@ -317,7 +317,7 @@ final class ImageTest extends TestCase
      * @covers ::resize
      * @covers ::resizeMulti
      */
-    public function resize_orientation()
+    public function resizeOrientation()
     {
         $files = [
             "{$this->_sourceFilesDir}/bottom-right.jpg",
@@ -336,16 +336,20 @@ final class ImageTest extends TestCase
         }
 
         $this->assertSame(
-            ['r' => 254, 'g' => 0, 'b' => 0, 'a' => 1], $imageResults[0]->getImagePixelColor(0, 0)->getColor()
+            ['r' => 254, 'g' => 0, 'b' => 0, 'a' => 1],
+            $imageResults[0]->getImagePixelColor(0, 0)->getColor()
         );
         $this->assertSame(
-            ['r' => 0, 'g' => 0, 'b' => 0, 'a' => 1], $imageResults[1]->getImagePixelColor(0, 0)->getColor()
+            ['r' => 0, 'g' => 0, 'b' => 0, 'a' => 1],
+            $imageResults[1]->getImagePixelColor(0, 0)->getColor()
         );
         $this->assertSame(
-            ['r' => 0, 'g' => 255, 'b' => 1, 'a' => 1], $imageResults[2]->getImagePixelColor(0, 0)->getColor()
+            ['r' => 0, 'g' => 255, 'b' => 1, 'a' => 1],
+            $imageResults[2]->getImagePixelColor(0, 0)->getColor()
         );
         $this->assertSame(
-            ['r' => 0, 'g' => 0, 'b' => 254, 'a' => 1], $imageResults[3]->getImagePixelColor(0, 0)->getColor()
+            ['r' => 0, 'g' => 0, 'b' => 254, 'a' => 1],
+            $imageResults[3]->getImagePixelColor(0, 0)->getColor()
         );
     }
 
@@ -355,7 +359,7 @@ final class ImageTest extends TestCase
      * @test
      * @covers ::resizeMulti
      */
-    public function resizeMulti_downsizeToMoreVerticalAndMoreHorizontalAspect()
+    public function resizeMultiDownsizeToMoreVerticalAndMoreHorizontalAspect()
     {
         $source = new \Imagick('pattern:gray0');
         $source->scaleImage(100, 50);
@@ -415,7 +419,7 @@ final class ImageTest extends TestCase
      * @test
      * @covers ::resizeMulti
      */
-    public function resizeMulti_performance()
+    public function resizeMultiPerformance()
     {
         $source = new \Imagick('pattern:gray0');
         $source->scaleImage(2000, 500);
@@ -450,7 +454,7 @@ final class ImageTest extends TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage a width in a $boxSizes value was not an int
      */
-    public function resizeMulti_nonIntWidth()
+    public function resizeMultiNonIntWidth()
     {
         Image::resizeMulti(new \Imagick(), [['width' => true, 'height' => 10]]);
     }
@@ -461,7 +465,7 @@ final class ImageTest extends TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage a height in a $boxSizes value was not an int
      */
-    public function resizeMulti_nonIntHeight()
+    public function resizeMultiNonIntHeight()
     {
         Image::resizeMulti(new \Imagick(), [['width' => 10, 'height' => true]]);
     }
@@ -497,7 +501,7 @@ final class ImageTest extends TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage $options["directoryMode"] was not an int
      */
-    public function write_nonIntDirectoryMode()
+    public function writeNonIntDirectoryMode()
     {
         Image::write(new \Imagick(), 'not under test', ['directoryMode' => 'not int']);
     }
@@ -508,7 +512,7 @@ final class ImageTest extends TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage $options["fileMode"] was not an int
      */
-    public function write_nonIntFileMode()
+    public function writeNonIntFileMode()
     {
         Image::write(new \Imagick(), 'not under test', ['fileMode' => 'not int']);
     }
@@ -519,7 +523,7 @@ final class ImageTest extends TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage $destPath was not a string
      */
-    public function write_nonStringDestPath()
+    public function writeNonStringDestPath()
     {
         Image::write(new \Imagick(), true);
     }
@@ -530,7 +534,7 @@ final class ImageTest extends TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage $options["format"] was not a string
      */
-    public function write_nonStringFormat()
+    public function writeNonStringFormat()
     {
         Image::write(new \Imagick(), 'not under test', ['format' => true]);
     }
@@ -541,7 +545,7 @@ final class ImageTest extends TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage $options["stripHeaders"] was not a bool
      */
-    public function write_nonBoolStripHeaders()
+    public function writeNonBoolStripHeaders()
     {
         Image::write(new \Imagick(), 'not under test', ['stripHeaders' => 'not bool']);
     }
@@ -572,7 +576,7 @@ final class ImageTest extends TestCase
      * @covers ::stripHeaders
      * @expectedException \InvalidArgumentException
      */
-    public function stripHeaders_nonstringPath()
+    public function stripHeadersNonstringPath()
     {
         Image::stripHeaders(true);
     }
@@ -584,7 +588,7 @@ final class ImageTest extends TestCase
      * @covers ::stripHeaders
      * @expectedException \ImagickException
      */
-    public function stripHeaders_missingImage()
+    public function stripHeadersMissingImage()
     {
         Image::stripHeaders("{$this->_tempDir}/doesnotexist.jpg");
     }

@@ -102,8 +102,7 @@ final class Image
             $clone = clone $source;
 
             $orientation = $clone->getImageOrientation();
-            switch ($orientation)
-            {
+            switch ($orientation) {
                 case \Imagick::ORIENTATION_BOTTOMRIGHT:
                     $clone->rotateimage('#fff', 180);
                     $clone->stripImage();
