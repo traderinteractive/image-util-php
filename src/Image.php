@@ -7,7 +7,7 @@ final class Image
     /**
      * Calls @see resizeMulti() with $boxWidth and $boxHeight as a single element in $boxSizes
      */
-    public static function resize(\Imagick $source, $boxWidth, $boxHeight, array $options = [])
+    public static function resize(\Imagick $source, int $boxWidth, int $boxHeight, array $options = []) : \Imagick
     {
         $results = self::resizeMulti($source, [['width' => $boxWidth, 'height' => $boxHeight]], $options);
         return $results[0];
@@ -37,7 +37,7 @@ final class Image
      * @throws \InvalidArgumentException if a $boxSizes height was not between 0 and $options["maxHeight"]
      * @throws \Exception
      */
-    public static function resizeMulti(\Imagick $source, array $boxSizes, array $options = [])
+    public static function resizeMulti(\Imagick $source, array $boxSizes, array $options = []) : array
     {
         //algorithm inspiration from http://today.java.net/pub/a/today/2007/04/03/perils-of-image-getscaledinstance.html
         //use of 2x2 binning is arguably the best quality one will get downsizing and is what lots of hardware does in the photography field,
@@ -242,12 +242,8 @@ final class Image
      * @throws \InvalidArgumentException if $options["stripHeaders"] was not a bool
      * @throws \Exception
      */
-    public static function write(\Imagick $source, $destPath, array $options = [])
+    public static function write(\Imagick $source, string $destPath, array $options = [])
     {
-        if (!is_string($destPath)) {
-            throw new \InvalidArgumentException('$destPath was not a string');
-        }
-
         $format = 'jpeg';
         if (array_key_exists('format', $options)) {
             $format = $options['format'];
@@ -323,12 +319,8 @@ final class Image
      * @throws \Exception if there is a failure stripping the headers
      * @throws \Exception if there is a failure writing the image back to path
      */
-    public static function stripHeaders($path)
+    public static function stripHeaders(string $path)
     {
-        if (!is_string($path)) {
-            throw new \InvalidArgumentException('$path was not a string');
-        }
-
         $imagick = new \Imagick($path);
         if ($imagick->stripImage() !== true) {
             //cumbersome to test

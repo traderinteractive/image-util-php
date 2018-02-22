@@ -521,17 +521,6 @@ final class ImageTest extends TestCase
      * @test
      * @covers ::write
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $destPath was not a string
-     */
-    public function writeNonStringDestPath()
-    {
-        Image::write(new \Imagick(), true);
-    }
-
-    /**
-     * @test
-     * @covers ::write
-     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage $options["format"] was not a string
      */
     public function writeNonStringFormat()
@@ -567,18 +556,6 @@ final class ImageTest extends TestCase
 
         $imagick = new \Imagick($path);
         $this->assertSame(0, count($imagick->getImageProperties('exif:*')));
-    }
-
-    /**
-     * Verify that stripHeaders fails with a non-string path.
-     *
-     * @test
-     * @covers ::stripHeaders
-     * @expectedException \InvalidArgumentException
-     */
-    public function stripHeadersNonstringPath()
-    {
-        Image::stripHeaders(true);
     }
 
     /**
