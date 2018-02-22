@@ -2,10 +2,12 @@
 
 namespace TraderInteractive\Util;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * @coversDefaultClass \TraderInteractive\Util\Image
  */
-final class ImageTest extends \PHPUnit_Framework_TestCase
+final class ImageTest extends TestCase
 {
     private $_sourceFilesDir;
     private $_tempDir;
@@ -412,7 +414,6 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      * @covers ::resizeMulti
-     * @uses \TraderInteractive\Util\Image::resize
      */
     public function resizeMulti_performance()
     {
