@@ -2,3 +2,5 @@
 /coverage/
 /clover.xml
 /nbproject/private/
+composer.lock
+phpunit.xml

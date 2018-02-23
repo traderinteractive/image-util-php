@@ -19,4 +19,5 @@ RUN pacman --upgrade --noconfirm --noprogressbar $HOME/php-imagick/php-imagick*.
 
 USER build
 
-CMD ["./build.php"]
+CMD ["./vendor/bin/phpunit"]
+CMD ["./vendor/bin/phpcs"]

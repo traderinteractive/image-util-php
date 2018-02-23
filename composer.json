@@ -1,5 +1,5 @@
 {
-    "name": "dominionenterprises/image-util",
+    "name": "traderinteractive/image-util",
     "description": "A collection of image utilities",
     "keywords": ["utility", "image"],
     "authors": [
@@ -20,17 +20,19 @@
         }
     ],
     "license": "MIT",
+    "config": {
+        "sort-packages": true
+    },
     "require": {
-        "php": "~5.6 || ~7.0",
+        "php": "^7.0",
         "ext-imagick": "~3.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "~5.0",
-        "satooshi/php-coveralls": "~0.6.1",
-        "squizlabs/php_codesniffer": "~1.5",
-        "dominionenterprises/dws-coding-standard": "~1.1"
+        "php-coveralls/php-coveralls": "^1.0",
+        "phpunit/phpunit": "^6.0",
+        "squizlabs/php_codesniffer": "^3.2"
     },
     "autoload": {
-        "psr-4": { "DominionEnterprises\\Util\\": "src" }
+        "psr-4": { "TraderInteractive\\Util\\": "src" }
     }
 }
