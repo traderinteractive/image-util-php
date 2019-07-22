@@ -219,6 +219,21 @@ final class ImageTest extends TestCase
      * @test
      * @covers ::resize
      * @covers ::resizeMulti
+     */
+    public function resizeWithUpsizeAndBestFit()
+    {
+        $source = new \Imagick('pattern:gray0');
+        $source->scaleImage(85, 45);
+        $notBestFit = Image::resize($source, 300, 300, ['upsize' => true, 'bestfit' => false]);
+        $this->assertSame('srgb(0,0,0)', $notBestFit->getImagePixelColor(299, 100)->getColorAsString());
+        $bestFit = Image::resize($source, 300, 300, ['upsize' => true, 'bestfit' => true]);
+        $this->assertSame('srgb(255,255,255)', $bestFit->getImagePixelColor(299, 100)->getColorAsString());
+    }
+
+    /**
+     * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage a $boxSizes width was not between 0 and $options["maxWidth"]
      */
@@ -309,6 +324,18 @@ final class ImageTest extends TestCase
     public function resizeNonBoolUpsize()
     {
         Image::resize(new \Imagick(), 10, 10, ['upsize' => 'not bool']);
+    }
+
+    /**
+     * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage $options["bestfit"] was not a bool
+     */
+    public function resizeNonBoolBestFit()
+    {
+        Image::resize(new \Imagick(), 10, 10, ['bestfit' => 'not bool']);
     }
 
     /**
