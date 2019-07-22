@@ -29,6 +29,7 @@ final class Image
      *
      * @throws \InvalidArgumentException if $options["color"] was not a string
      * @throws \InvalidArgumentException if $options["upsize"] was not a bool
+     * @throws \InvalidArgumentException if $options["bestfit"] was not a bool
      * @throws \InvalidArgumentException if $options["maxWidth"] was not an int
      * @throws \InvalidArgumentException if $options["maxHeight"] was not an int
      * @throws \InvalidArgumentException if a width in a $boxSizes value was not an int
@@ -56,6 +57,14 @@ final class Image
             $upsize = $options['upsize'];
             if ($upsize !== true && $upsize !== false) {
                 throw new \InvalidArgumentException('$options["upsize"] was not a bool');
+            }
+        }
+
+        $bestfit = false;
+        if (isset($options['bestfit'])) {
+            $bestfit = $options['bestfit'];
+            if ($bestfit !== true && $bestfit !== false) {
+                throw new \InvalidArgumentException('$options["bestfit"] was not a bool');
             }
         }
 
@@ -196,7 +205,7 @@ final class Image
             }
 
             if ($upsize && ($width < $targetWidth || $height < $targetHeight)) {
-                if ($clone->resizeImage($targetWidth, $targetHeight, \Imagick::FILTER_CUBIC, 1.0) !== true) {
+                if ($clone->resizeImage($targetWidth, $targetHeight, \Imagick::FILTER_CUBIC, 1.0, $bestfit) !== true) {
                     //cumbersome to test
                     throw new \Exception('Imagick::resizeImage() did not return true');//@codeCoverageIgnore
                 }
