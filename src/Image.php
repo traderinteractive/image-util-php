@@ -2,6 +2,8 @@
 
 namespace DominionEnterprises\Util;
 
+use DominionEnterprises\Util;
+
 final class Image
 {
     /**
@@ -212,12 +214,7 @@ final class Image
             }
 
             //put image in box
-            $canvas = new \Imagick();
-            if ($canvas->newImage($boxWidth, $boxHeight, $color) !== true) {
-                //cumbersome to test
-                throw new \Exception('Imagick::newImage() did not return true');//@codeCoverageIgnore
-            }
-
+            $canvas = self::getBackgroundCanvas($clone, $color, $boxWidth, $boxHeight);
             if ($canvas->compositeImage($clone, \Imagick::COMPOSITE_ATOP, $targetX, $targetY) !== true) {
                 //cumbersome to test
                 throw new \Exception('Imagick::compositeImage() did not return true');//@codeCoverageIgnore
@@ -230,6 +227,21 @@ final class Image
         }
 
         return $results;
+    }
+
+    private static function getBackgroundCanvas(\Imagick $source, string $color, int $boxWidth, $boxHeight)
+    {
+        if ($color === 'blur') {
+            $canvas = new \Imagick();
+            $canvas->readImageBlob($source->getImageBlob());
+            $canvas->resizeImage($boxWidth, $boxHeight, \Imagick::FILTER_BOX, 15.0, false);
+            return $canvas;
+        }
+
+        $canvas = new \Imagick();
+        $imageCreated = $canvas->newImage($boxWidth, $boxHeight, $color);
+        Util::ensure(true, $imageCreated, 'Imagick::newImage() did not return true');
+        return $canvas;
     }
 
     /**
