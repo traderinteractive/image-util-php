@@ -217,6 +217,38 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
      * @test
      * @covers ::resize
      * @covers ::resizeMulti
+     */
+    public function resizeWithUpsizeAndBestFit()
+    {
+        $source = new \Imagick('pattern:gray0');
+        $source->scaleImage(85, 45);
+        $notBestFit = Image::resize($source, 300, 300, ['upsize' => true, 'bestfit' => false]);
+        $this->assertSame('srgb(0,0,0)', $notBestFit->getImagePixelColor(299, 100)->getColorAsString());
+        $bestFit = Image::resize($source, 300, 300, ['upsize' => true, 'bestfit' => true]);
+        $this->assertSame('srgb(255,255,255)', $bestFit->getImagePixelColor(299, 100)->getColorAsString());
+    }
+
+    /**
+     * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
+     */
+    public function resizeWithBurredBackground()
+    {
+        $source = new \Imagick();
+        $source->readImage(__DIR__ . '/_files/portrait.jpg');
+        $actual = Image::resize($source, 1024, 768, ['upsize' => true, 'bestfit' => false, 'color' => 'blur']);
+
+        $expected = new \Imagick();
+        $expected->readImage(__DIR__ . '/_files/blur.jpg');
+        $comparison = $expected->compareImages($actual, \Imagick::METRIC_UNDEFINED);
+        $this->assertGreaterThanOrEqual(.999, $comparison[1]);
+    }
+
+    /**
+     * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage a $boxSizes width was not between 0 and $options["maxWidth"]
      */
@@ -307,6 +339,18 @@ final class ImageTest extends \PHPUnit_Framework_TestCase
     public function resize_nonBoolUpsize()
     {
         Image::resize(new \Imagick(), 10, 10, ['upsize' => 'not bool']);
+    }
+
+    /**
+     * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage $options["bestfit"] was not a bool
+     */
+    public function resizeNonBoolBestFit()
+    {
+        Image::resize(new \Imagick(), 10, 10, ['bestfit' => 'not bool']);
     }
 
     /**
