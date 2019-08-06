@@ -25,7 +25,8 @@
     },
     "require": {
         "php": "^7.0",
-        "ext-imagick": "~3.0"
+        "ext-imagick": "~3.0",
+        "traderinteractive/util": "^3.0"
     },
     "require-dev": {
         "php-coveralls/php-coveralls": "^1.0",

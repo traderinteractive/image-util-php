@@ -2,6 +2,8 @@
 
 namespace TraderInteractive\Util;
 
+use TraderInteractive\Util;
+
 final class Image
 {
     /**
@@ -30,6 +32,7 @@ final class Image
      *
      * @throws \InvalidArgumentException if $options["color"] was not a string
      * @throws \InvalidArgumentException if $options["upsize"] was not a bool
+     * @throws \InvalidArgumentException if $options["bestfit"] was not a bool
      * @throws \InvalidArgumentException if $options["maxWidth"] was not an int
      * @throws \InvalidArgumentException if $options["maxHeight"] was not an int
      * @throws \InvalidArgumentException if a width in a $boxSizes value was not an int
@@ -57,6 +60,14 @@ final class Image
             $upsize = $options['upsize'];
             if ($upsize !== true && $upsize !== false) {
                 throw new \InvalidArgumentException('$options["upsize"] was not a bool');
+            }
+        }
+
+        $bestfit = false;
+        if (isset($options['bestfit'])) {
+            $bestfit = $options['bestfit'];
+            if ($bestfit !== true && $bestfit !== false) {
+                throw new \InvalidArgumentException('$options["bestfit"] was not a bool');
             }
         }
 
@@ -198,19 +209,14 @@ final class Image
             }
 
             if ($upsize && ($width < $targetWidth || $height < $targetHeight)) {
-                if ($clone->resizeImage($targetWidth, $targetHeight, \Imagick::FILTER_CUBIC, 1.0) !== true) {
+                if ($clone->resizeImage($targetWidth, $targetHeight, \Imagick::FILTER_CUBIC, 1.0, $bestfit) !== true) {
                     //cumbersome to test
                     throw new \Exception('Imagick::resizeImage() did not return true');//@codeCoverageIgnore
                 }
             }
 
             //put image in box
-            $canvas = new \Imagick();
-            if ($canvas->newImage($boxWidth, $boxHeight, $color) !== true) {
-                //cumbersome to test
-                throw new \Exception('Imagick::newImage() did not return true');//@codeCoverageIgnore
-            }
-
+            $canvas = self::getBackgroundCanvas($clone, $color, $boxWidth, $boxHeight);
             if ($canvas->compositeImage($clone, \Imagick::COMPOSITE_ATOP, $targetX, $targetY) !== true) {
                 //cumbersome to test
                 throw new \Exception('Imagick::compositeImage() did not return true');//@codeCoverageIgnore
@@ -223,6 +229,21 @@ final class Image
         }
 
         return $results;
+    }
+
+    private static function getBackgroundCanvas(\Imagick $source, string $color, int $boxWidth, $boxHeight)
+    {
+        if ($color === 'blur') {
+            $canvas = new \Imagick();
+            $canvas->readImageBlob($source->getImageBlob());
+            $canvas->resizeImage($boxWidth, $boxHeight, \Imagick::FILTER_BOX, 15.0, false);
+            return $canvas;
+        }
+
+        $canvas = new \Imagick();
+        $imageCreated = $canvas->newImage($boxWidth, $boxHeight, $color);
+        Util::ensure(true, $imageCreated, 'Imagick::newImage() did not return true');
+        return $canvas;
     }
 
     /**
