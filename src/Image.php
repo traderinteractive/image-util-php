@@ -70,15 +70,15 @@ final class Image
      *
      * @return array array of \Imagick objects resized. Keys maintained from $boxSizes
      *
-     * @throws \InvalidArgumentException if $options["color"] was not a string
-     * @throws \InvalidArgumentException if $options["upsize"] was not a bool
-     * @throws \InvalidArgumentException if $options["bestfit"] was not a bool
-     * @throws \InvalidArgumentException if $options["maxWidth"] was not an int
-     * @throws \InvalidArgumentException if $options["maxHeight"] was not an int
-     * @throws \InvalidArgumentException if a width in a $boxSizes value was not an int
-     * @throws \InvalidArgumentException if a height in a $boxSizes value was not an int
-     * @throws \InvalidArgumentException if a $boxSizes width was not between 0 and $options["maxWidth"]
-     * @throws \InvalidArgumentException if a $boxSizes height was not between 0 and $options["maxHeight"]
+     * @throws InvalidArgumentException if $options["color"] was not a string
+     * @throws InvalidArgumentException if $options["upsize"] was not a bool
+     * @throws InvalidArgumentException if $options["bestfit"] was not a bool
+     * @throws InvalidArgumentException if $options["maxWidth"] was not an int
+     * @throws InvalidArgumentException if $options["maxHeight"] was not an int
+     * @throws InvalidArgumentException if a width in a $boxSizes value was not an int
+     * @throws InvalidArgumentException if a height in a $boxSizes value was not an int
+     * @throws InvalidArgumentException if a $boxSizes width was not between 0 and $options["maxWidth"]
+     * @throws InvalidArgumentException if a $boxSizes height was not between 0 and $options["maxHeight"]
      * @throws \Exception
      */
     public static function resizeMulti(\Imagick $source, array $boxSizes, array $options = []) : array
@@ -111,19 +111,19 @@ final class Image
 
         foreach ($boxSizes as $boxSizeKey => $boxSize) {
             if (!isset($boxSize['width']) || !is_int($boxSize['width'])) {
-                throw new \InvalidArgumentException('a width in a $boxSizes value was not an int');
+                throw new InvalidArgumentException('a width in a $boxSizes value was not an int');
             }
 
             if (!isset($boxSize['height']) || !is_int($boxSize['height'])) {
-                throw new \InvalidArgumentException('a height in a $boxSizes value was not an int');
+                throw new InvalidArgumentException('a height in a $boxSizes value was not an int');
             }
 
             if ($boxSize['width'] > $maxWidth || $boxSize['width'] <= 0) {
-                throw new \InvalidArgumentException('a $boxSizes width was not between 0 and $options["maxWidth"]');
+                throw new InvalidArgumentException('a $boxSizes width was not between 0 and $options["maxWidth"]');
             }
 
             if ($boxSize['height'] > $maxHeight || $boxSize['height'] <= 0) {
-                throw new \InvalidArgumentException('a $boxSizes height was not between 0 and $options["maxHeight"]');
+                throw new InvalidArgumentException('a $boxSizes height was not between 0 and $options["maxHeight"]');
             }
         }
 
@@ -282,11 +282,11 @@ final class Image
      *
      * @return void
      *
-     * @throws \InvalidArgumentException if $destPath was not a string
-     * @throws \InvalidArgumentException if $options["format"] was not a string
-     * @throws \InvalidArgumentException if $options["directoryMode"] was not an int
-     * @throws \InvalidArgumentException if $options["fileMode"] was not an int
-     * @throws \InvalidArgumentException if $options["stripHeaders"] was not a bool
+     * @throws InvalidArgumentException if $destPath was not a string
+     * @throws InvalidArgumentException if $options["format"] was not a string
+     * @throws InvalidArgumentException if $options["directoryMode"] was not an int
+     * @throws InvalidArgumentException if $options["fileMode"] was not an int
+     * @throws InvalidArgumentException if $options["stripHeaders"] was not a bool
      * @throws \Exception
      */
     public static function write(\Imagick $source, string $destPath, array $options = [])
@@ -295,7 +295,7 @@ final class Image
         if (array_key_exists('format', $options)) {
             $format = $options['format'];
             if (!is_string($format)) {
-                throw new \InvalidArgumentException('$options["format"] was not a string');
+                throw new InvalidArgumentException('$options["format"] was not a string');
             }
         }
 
@@ -303,7 +303,7 @@ final class Image
         if (array_key_exists('directoryMode', $options)) {
             $directoryMode = $options['directoryMode'];
             if (!is_int($directoryMode)) {
-                throw new \InvalidArgumentException('$options["directoryMode"] was not an int');
+                throw new InvalidArgumentException('$options["directoryMode"] was not an int');
             }
         }
 
@@ -311,7 +311,7 @@ final class Image
         if (array_key_exists('fileMode', $options)) {
             $fileMode = $options['fileMode'];
             if (!is_int($fileMode)) {
-                throw new \InvalidArgumentException('$options["fileMode"] was not an int');
+                throw new InvalidArgumentException('$options["fileMode"] was not an int');
             }
         }
 
@@ -319,7 +319,7 @@ final class Image
         if (array_key_exists('stripHeaders', $options)) {
             $stripHeaders = $options['stripHeaders'];
             if ($stripHeaders !== false && $stripHeaders !== true) {
-                throw new \InvalidArgumentException('$options["stripHeaders"] was not a bool');
+                throw new InvalidArgumentException('$options["stripHeaders"] was not a bool');
             }
         }
 
@@ -362,7 +362,7 @@ final class Image
      *
      * @param string $path The image path.
      * @return void
-     * @throws \InvalidArgumentException if $path is not a string
+     * @throws InvalidArgumentException if $path is not a string
      * @throws \Exception if there is a failure stripping the headers
      * @throws \Exception if there is a failure writing the image back to path
      */
