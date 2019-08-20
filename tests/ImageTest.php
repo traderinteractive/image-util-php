@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass \TraderInteractive\Util\Image
+ * @covers ::<private>
  */
 final class ImageTest extends TestCase
 {
