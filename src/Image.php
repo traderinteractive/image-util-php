@@ -33,6 +33,11 @@ final class Image
     const DEFAULT_MAX_HEIGHT = 10000;
 
     /**
+     * @var bool
+     */
+    const DEFAULT_BLUR_BACKGROUND = false;
+
+    /**
      * @var array
      */
     const DEFAULT_OPTIONS = [
@@ -41,6 +46,7 @@ final class Image
         'bestfit' => self::DEFAULT_BESTFIT,
         'maxWidth' => self::DEFAULT_MAX_WIDTH,
         'maxHeight' => self::DEFAULT_MAX_HEIGHT,
+        'blurBackground' => self::DEFAULT_BLUR_BACKGROUND,
     ];
 
     /**
@@ -97,6 +103,14 @@ final class Image
 
         $bestfit = $options['bestfit'];
         Util::ensure(true, is_bool($bestfit), InvalidArgumentException::class, ['$options["bestfit"] was not a bool']);
+
+        $blurBackground = $options['blurBackground'];
+        Util::ensure(
+            true,
+            is_bool($blurBackground),
+            InvalidArgumentException::class,
+            ['$options["blurBackground"] was not a bool']
+        );
 
         $maxWidth = $options['maxWidth'];
         Util::ensure(true, is_int($maxWidth), InvalidArgumentException::class, ['$options["maxWidth"] was not an int']);
@@ -238,7 +252,7 @@ final class Image
             }
 
             //put image in box
-            $canvas = self::getBackgroundCanvas($clone, $color, $boxWidth, $boxHeight);
+            $canvas = self::getBackgroundCanvas($source, $color, $blurBackground, $boxWidth, $boxHeight);
             if ($canvas->compositeImage($clone, \Imagick::COMPOSITE_ATOP, $targetX, $targetY) !== true) {
                 //cumbersome to test
                 throw new \Exception('Imagick::compositeImage() did not return true');//@codeCoverageIgnore
@@ -253,18 +267,35 @@ final class Image
         return $results;
     }
 
-    private static function getBackgroundCanvas(\Imagick $source, string $color, int $boxWidth, $boxHeight)
-    {
-        if ($color === 'blur') {
-            $canvas = new \Imagick();
-            $canvas->readImageBlob($source->getImageBlob());
-            $canvas->resizeImage($boxWidth, $boxHeight, \Imagick::FILTER_BOX, 15.0, false);
-            return $canvas;
+    private static function getBackgroundCanvas(
+        \Imagick $source,
+        string $color,
+        bool $blurBackground,
+        int $boxWidth,
+        int $boxHeight
+    ) : \Imagick {
+        if ($blurBackground || $color === 'blur') {
+            return self::getBlurredBackgroundCanvas($source, $boxWidth, $boxHeight);
         }
 
+        return self::getColoredBackgroundCanvas($color, $boxWidth, $boxHeight);
+    }
+
+    private static function getColoredBackgroundCanvas(string $color, int $boxWidth, int $boxHeight)
+    {
         $canvas = new \Imagick();
         $imageCreated = $canvas->newImage($boxWidth, $boxHeight, $color);
         Util::ensure(true, $imageCreated, 'Imagick::newImage() did not return true');
+        return $canvas;
+    }
+
+    private static function getBlurredBackgroundCanvas(
+        \Imagick $source,
+        int $boxWidth,
+        int $boxHeight
+    ) : \Imagick {
+        $canvas = clone $source;
+        $canvas->resizeImage($boxWidth, $boxHeight, \Imagick::FILTER_BOX, 15.0, false);
         return $canvas;
     }
 

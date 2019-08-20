@@ -235,11 +235,27 @@ final class ImageTest extends TestCase
      * @covers ::resize
      * @covers ::resizeMulti
      */
-    public function resizeWithBurredBackground()
+    public function resizeWithColorOfBlur()
     {
         $source = new \Imagick();
         $source->readImage(__DIR__ . '/_files/portrait.jpg');
         $actual = Image::resize($source, 1024, 768, ['upsize' => true, 'bestfit' => false, 'color' => 'blur']);
+        $expected = new \Imagick();
+        $expected->readImage(__DIR__ . '/_files/blur.jpg');
+        $comparison = $expected->compareImages($actual, \Imagick::METRIC_UNDEFINED);
+        $this->assertGreaterThanOrEqual(.999, $comparison[1]);
+    }
+
+    /**
+     * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
+     */
+    public function resizeWithBlurBackground()
+    {
+        $source = new \Imagick();
+        $source->readImage(__DIR__ . '/_files/portrait.jpg');
+        $actual = Image::resize($source, 1024, 768, ['upsize' => true, 'bestfit' => false, 'blurBackground' => true]);
 
         $expected = new \Imagick();
         $expected->readImage(__DIR__ . '/_files/blur.jpg');
