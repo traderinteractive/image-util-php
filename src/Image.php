@@ -25,6 +25,7 @@ final class Image
      *     string color (default white) background color. Any supported from
      *         http://www.imagemagick.org/script/color.php#color_names
      *     bool upsize (default false) true to upsize the original image or false to upsize just the bounding box
+     *     bool bestfit (default false) true to resize with the best fit option.
      *     int maxWidth (default 10000) max width allowed for $boxWidth
      *     int maxHeight (default 10000) max height allowed for $boxHeight
      *
