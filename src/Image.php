@@ -38,6 +38,11 @@ final class Image
     const DEFAULT_BLUR_BACKGROUND = false;
 
     /**
+     * @var float
+     */
+    const DEFAULT_BLUR_VALUE = 15.0;
+
+    /**
      * @var array
      */
     const DEFAULT_OPTIONS = [
@@ -47,6 +52,7 @@ final class Image
         'maxWidth' => self::DEFAULT_MAX_WIDTH,
         'maxHeight' => self::DEFAULT_MAX_HEIGHT,
         'blurBackground' => self::DEFAULT_BLUR_BACKGROUND,
+        'blurValue' => self::DEFAULT_BLUR_VALUE,
     ];
 
     /**
@@ -112,6 +118,13 @@ final class Image
             ['$options["blurBackground"] was not a bool']
         );
 
+        $blurValue = $options['blurValue'];
+        Util::ensure(
+            true,
+            is_float($blurValue),
+            InvalidArgumentException::class,
+            ['$options["blurValue"] was not a float']
+        );
         $maxWidth = $options['maxWidth'];
         Util::ensure(true, is_int($maxWidth), InvalidArgumentException::class, ['$options["maxWidth"] was not an int']);
 
@@ -252,7 +265,7 @@ final class Image
             }
 
             //put image in box
-            $canvas = self::getBackgroundCanvas($source, $color, $blurBackground, $boxWidth, $boxHeight);
+            $canvas = self::getBackgroundCanvas($source, $color, $blurBackground, $blurValue, $boxWidth, $boxHeight);
             if ($canvas->compositeImage($clone, \Imagick::COMPOSITE_ATOP, $targetX, $targetY) !== true) {
                 //cumbersome to test
                 throw new \Exception('Imagick::compositeImage() did not return true');//@codeCoverageIgnore
@@ -271,11 +284,12 @@ final class Image
         \Imagick $source,
         string $color,
         bool $blurBackground,
+        float $blurValue,
         int $boxWidth,
         int $boxHeight
     ) : \Imagick {
         if ($blurBackground || $color === 'blur') {
-            return self::getBlurredBackgroundCanvas($source, $boxWidth, $boxHeight);
+            return self::getBlurredBackgroundCanvas($source, $blurValue, $boxWidth, $boxHeight);
         }
 
         return self::getColoredBackgroundCanvas($color, $boxWidth, $boxHeight);
@@ -291,11 +305,12 @@ final class Image
 
     private static function getBlurredBackgroundCanvas(
         \Imagick $source,
+        float $blurValue,
         int $boxWidth,
         int $boxHeight
     ) : \Imagick {
         $canvas = clone $source;
-        $canvas->resizeImage($boxWidth, $boxHeight, \Imagick::FILTER_BOX, 15.0, false);
+        $canvas->resizeImage($boxWidth, $boxHeight, \Imagick::FILTER_BOX, $blurValue, false);
         return $canvas;
     }
 

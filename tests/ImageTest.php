@@ -267,6 +267,25 @@ final class ImageTest extends TestCase
      * @test
      * @covers ::resize
      * @covers ::resizeMulti
+     */
+    public function resizeWithBurredBackgroundWithCustomBlurValue()
+    {
+        $source = new \Imagick();
+        $source->readImage(__DIR__ . '/_files/portrait.jpg');
+        $options = ['upsize' => true, 'bestfit' => false, 'blurBackground' => true, 'blurValue' => 30.0];
+        $actual = Image::resize($source, 1024, 768, $options);
+        $actual->writeImage(__DIR__ . '/_files/blur-30.jpg');
+
+        $expected = new \Imagick();
+        $expected->readImage(__DIR__ . '/_files/blur-30.jpg');
+        $comparison = $expected->compareImages($actual, \Imagick::METRIC_UNDEFINED);
+        $this->assertGreaterThanOrEqual(.999, $comparison[1]);
+    }
+
+    /**
+     * @test
+     * @covers ::resize
+     * @covers ::resizeMulti
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage a $boxSizes width was not between 0 and $options["maxWidth"]
      */
