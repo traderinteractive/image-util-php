@@ -2,10 +2,47 @@
 
 namespace TraderInteractive\Util;
 
+use InvalidArgumentException;
 use TraderInteractive\Util;
 
 final class Image
 {
+    /**
+     * @var string
+     */
+    const DEFAULT_COLOR = 'white';
+
+    /**
+     * @var bool
+     */
+    const DEFAULT_UPSIZE = false;
+
+    /**
+     * @var bool
+     */
+    const DEFAULT_BESTFIT = false;
+
+    /**
+     * @var int
+     */
+    const DEFAULT_MAX_WIDTH = 10000;
+
+    /**
+     * @var int
+     */
+    const DEFAULT_MAX_HEIGHT = 10000;
+
+    /**
+     * @var array
+     */
+    const DEFAULT_OPTIONS = [
+        'color' => self::DEFAULT_COLOR,
+        'upsize' => self::DEFAULT_UPSIZE,
+        'bestfit' => self::DEFAULT_BESTFIT,
+        'maxWidth' => self::DEFAULT_MAX_WIDTH,
+        'maxHeight' => self::DEFAULT_MAX_HEIGHT,
+    ];
+
     /**
      * Calls @see resizeMulti() with $boxWidth and $boxHeight as a single element in $boxSizes
      */
@@ -28,6 +65,8 @@ final class Image
      *     bool bestfit (default false) true to resize with the best fit option.
      *     int maxWidth (default 10000) max width allowed for $boxWidth
      *     int maxHeight (default 10000) max height allowed for $boxHeight
+     *     bool blurBackground (default false) true to create a composite resized image placed over an enlarged blurred
+     *                         image of the original.
      *
      * @return array array of \Imagick objects resized. Keys maintained from $boxSizes
      *
@@ -48,45 +87,27 @@ final class Image
         //use of 2x2 binning is arguably the best quality one will get downsizing and is what lots of hardware does in
         //the photography field, while being reasonably fast. Upsizing is more subjective but you can't get much
         //better than bicubic which is what is used here.
-        $color = 'white';
-        if (isset($options['color'])) {
-            $color = $options['color'];
-            if (!is_string($color)) {
-                throw new \InvalidArgumentException('$options["color"] was not a string');
-            }
-        }
 
-        $upsize = false;
-        if (isset($options['upsize'])) {
-            $upsize = $options['upsize'];
-            if ($upsize !== true && $upsize !== false) {
-                throw new \InvalidArgumentException('$options["upsize"] was not a bool');
-            }
-        }
+        $options = $options + self::DEFAULT_OPTIONS;
+        $color = $options['color'];
+        Util::ensure(true, is_string($color), InvalidArgumentException::class, ['$options["color"] was not a string']);
 
-        $bestfit = false;
-        if (isset($options['bestfit'])) {
-            $bestfit = $options['bestfit'];
-            if ($bestfit !== true && $bestfit !== false) {
-                throw new \InvalidArgumentException('$options["bestfit"] was not a bool');
-            }
-        }
+        $upsize = $options['upsize'];
+        Util::ensure(true, is_bool($upsize), InvalidArgumentException::class, ['$options["upsize"] was not a bool']);
 
-        $maxWidth = 10000;
-        if (isset($options['maxWidth'])) {
-            $maxWidth = $options['maxWidth'];
-            if (!is_int($maxWidth)) {
-                throw new \InvalidArgumentException('$options["maxWidth"] was not an int');
-            }
-        }
+        $bestfit = $options['bestfit'];
+        Util::ensure(true, is_bool($bestfit), InvalidArgumentException::class, ['$options["bestfit"] was not a bool']);
 
-        $maxHeight = 10000;
-        if (isset($options['maxHeight'])) {
-            $maxHeight = $options['maxHeight'];
-            if (!is_int($maxHeight)) {
-                throw new \InvalidArgumentException('$options["maxHeight"] was not an int');
-            }
-        }
+        $maxWidth = $options['maxWidth'];
+        Util::ensure(true, is_int($maxWidth), InvalidArgumentException::class, ['$options["maxWidth"] was not an int']);
+
+        $maxHeight = $options['maxHeight'];
+        Util::ensure(
+            true,
+            is_int($maxHeight),
+            InvalidArgumentException::class,
+            ['$options["maxHeight"] was not an int']
+        );
 
         foreach ($boxSizes as $boxSizeKey => $boxSize) {
             if (!isset($boxSize['width']) || !is_int($boxSize['width'])) {
