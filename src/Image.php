@@ -162,21 +162,7 @@ final class Image
 
             $clone = clone $source;
 
-            $orientation = $clone->getImageOrientation();
-            switch ($orientation) {
-                case \Imagick::ORIENTATION_BOTTOMRIGHT:
-                    $clone->rotateimage('#fff', 180);
-                    $clone->stripImage();
-                    break;
-                case \Imagick::ORIENTATION_RIGHTTOP:
-                    $clone->rotateimage('#fff', 90);
-                    $clone->stripImage();
-                    break;
-                case \Imagick::ORIENTATION_LEFTBOTTOM:
-                    $clone->rotateimage('#fff', -90);
-                    $clone->stripImage();
-                    break;
-            }
+            self::rotateImage($clone);
 
             $width = $clone->getImageWidth();
             $height = $clone->getImageHeight();
@@ -423,6 +409,28 @@ final class Image
         if ($imagick->writeImage($path) !== true) {
             //cumbersome to test
             throw new \Exception('Imagick::writeImage() did not return true');//@codeCoverageIgnore
+        }
+    }
+
+    /**
+     * @param \Imagick $imagick
+     */
+    private static function rotateImage(\Imagick $imagick)
+    {
+        $orientation = $imagick->getImageOrientation();
+        switch ($orientation) {
+            case \Imagick::ORIENTATION_BOTTOMRIGHT:
+                $imagick->rotateimage('#fff', 180);
+                $imagick->stripImage();
+                break;
+            case \Imagick::ORIENTATION_RIGHTTOP:
+                $imagick->rotateimage('#fff', 90);
+                $imagick->stripImage();
+                break;
+            case \Imagick::ORIENTATION_LEFTBOTTOM:
+                $imagick->rotateimage('#fff', -90);
+                $imagick->stripImage();
+                break;
         }
     }
 }
