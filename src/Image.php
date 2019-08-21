@@ -2,10 +2,59 @@
 
 namespace TraderInteractive\Util;
 
+use InvalidArgumentException;
 use TraderInteractive\Util;
 
 final class Image
 {
+    /**
+     * @var string
+     */
+    const DEFAULT_COLOR = 'white';
+
+    /**
+     * @var bool
+     */
+    const DEFAULT_UPSIZE = false;
+
+    /**
+     * @var bool
+     */
+    const DEFAULT_BESTFIT = false;
+
+    /**
+     * @var int
+     */
+    const DEFAULT_MAX_WIDTH = 10000;
+
+    /**
+     * @var int
+     */
+    const DEFAULT_MAX_HEIGHT = 10000;
+
+    /**
+     * @var bool
+     */
+    const DEFAULT_BLUR_BACKGROUND = false;
+
+    /**
+     * @var float
+     */
+    const DEFAULT_BLUR_VALUE = 15.0;
+
+    /**
+     * @var array
+     */
+    const DEFAULT_OPTIONS = [
+        'color' => self::DEFAULT_COLOR,
+        'upsize' => self::DEFAULT_UPSIZE,
+        'bestfit' => self::DEFAULT_BESTFIT,
+        'maxWidth' => self::DEFAULT_MAX_WIDTH,
+        'maxHeight' => self::DEFAULT_MAX_HEIGHT,
+        'blurBackground' => self::DEFAULT_BLUR_BACKGROUND,
+        'blurValue' => self::DEFAULT_BLUR_VALUE,
+    ];
+
     /**
      * Calls @see resizeMulti() with $boxWidth and $boxHeight as a single element in $boxSizes
      */
@@ -25,20 +74,23 @@ final class Image
      *     string color (default white) background color. Any supported from
      *         http://www.imagemagick.org/script/color.php#color_names
      *     bool upsize (default false) true to upsize the original image or false to upsize just the bounding box
+     *     bool bestfit (default false) true to resize with the best fit option.
      *     int maxWidth (default 10000) max width allowed for $boxWidth
      *     int maxHeight (default 10000) max height allowed for $boxHeight
+     *     bool blurBackground (default false) true to create a composite resized image placed over an enlarged blurred
+     *                         image of the original.
      *
      * @return array array of \Imagick objects resized. Keys maintained from $boxSizes
      *
-     * @throws \InvalidArgumentException if $options["color"] was not a string
-     * @throws \InvalidArgumentException if $options["upsize"] was not a bool
-     * @throws \InvalidArgumentException if $options["bestfit"] was not a bool
-     * @throws \InvalidArgumentException if $options["maxWidth"] was not an int
-     * @throws \InvalidArgumentException if $options["maxHeight"] was not an int
-     * @throws \InvalidArgumentException if a width in a $boxSizes value was not an int
-     * @throws \InvalidArgumentException if a height in a $boxSizes value was not an int
-     * @throws \InvalidArgumentException if a $boxSizes width was not between 0 and $options["maxWidth"]
-     * @throws \InvalidArgumentException if a $boxSizes height was not between 0 and $options["maxHeight"]
+     * @throws InvalidArgumentException if $options["color"] was not a string
+     * @throws InvalidArgumentException if $options["upsize"] was not a bool
+     * @throws InvalidArgumentException if $options["bestfit"] was not a bool
+     * @throws InvalidArgumentException if $options["maxWidth"] was not an int
+     * @throws InvalidArgumentException if $options["maxHeight"] was not an int
+     * @throws InvalidArgumentException if a width in a $boxSizes value was not an int
+     * @throws InvalidArgumentException if a height in a $boxSizes value was not an int
+     * @throws InvalidArgumentException if a $boxSizes width was not between 0 and $options["maxWidth"]
+     * @throws InvalidArgumentException if a $boxSizes height was not between 0 and $options["maxHeight"]
      * @throws \Exception
      */
     public static function resizeMulti(\Imagick $source, array $boxSizes, array $options = []) : array
@@ -47,61 +99,58 @@ final class Image
         //use of 2x2 binning is arguably the best quality one will get downsizing and is what lots of hardware does in
         //the photography field, while being reasonably fast. Upsizing is more subjective but you can't get much
         //better than bicubic which is what is used here.
-        $color = 'white';
-        if (isset($options['color'])) {
-            $color = $options['color'];
-            if (!is_string($color)) {
-                throw new \InvalidArgumentException('$options["color"] was not a string');
-            }
-        }
 
-        $upsize = false;
-        if (isset($options['upsize'])) {
-            $upsize = $options['upsize'];
-            if ($upsize !== true && $upsize !== false) {
-                throw new \InvalidArgumentException('$options["upsize"] was not a bool');
-            }
-        }
+        $options = $options + self::DEFAULT_OPTIONS;
+        $color = $options['color'];
+        Util::ensure(true, is_string($color), InvalidArgumentException::class, ['$options["color"] was not a string']);
 
-        $bestfit = false;
-        if (isset($options['bestfit'])) {
-            $bestfit = $options['bestfit'];
-            if ($bestfit !== true && $bestfit !== false) {
-                throw new \InvalidArgumentException('$options["bestfit"] was not a bool');
-            }
-        }
+        $upsize = $options['upsize'];
+        Util::ensure(true, is_bool($upsize), InvalidArgumentException::class, ['$options["upsize"] was not a bool']);
 
-        $maxWidth = 10000;
-        if (isset($options['maxWidth'])) {
-            $maxWidth = $options['maxWidth'];
-            if (!is_int($maxWidth)) {
-                throw new \InvalidArgumentException('$options["maxWidth"] was not an int');
-            }
-        }
+        $bestfit = $options['bestfit'];
+        Util::ensure(true, is_bool($bestfit), InvalidArgumentException::class, ['$options["bestfit"] was not a bool']);
 
-        $maxHeight = 10000;
-        if (isset($options['maxHeight'])) {
-            $maxHeight = $options['maxHeight'];
-            if (!is_int($maxHeight)) {
-                throw new \InvalidArgumentException('$options["maxHeight"] was not an int');
-            }
-        }
+        $blurBackground = $options['blurBackground'];
+        Util::ensure(
+            true,
+            is_bool($blurBackground),
+            InvalidArgumentException::class,
+            ['$options["blurBackground"] was not a bool']
+        );
+
+        $blurValue = $options['blurValue'];
+        Util::ensure(
+            true,
+            is_float($blurValue),
+            InvalidArgumentException::class,
+            ['$options["blurValue"] was not a float']
+        );
+        $maxWidth = $options['maxWidth'];
+        Util::ensure(true, is_int($maxWidth), InvalidArgumentException::class, ['$options["maxWidth"] was not an int']);
+
+        $maxHeight = $options['maxHeight'];
+        Util::ensure(
+            true,
+            is_int($maxHeight),
+            InvalidArgumentException::class,
+            ['$options["maxHeight"] was not an int']
+        );
 
         foreach ($boxSizes as $boxSizeKey => $boxSize) {
             if (!isset($boxSize['width']) || !is_int($boxSize['width'])) {
-                throw new \InvalidArgumentException('a width in a $boxSizes value was not an int');
+                throw new InvalidArgumentException('a width in a $boxSizes value was not an int');
             }
 
             if (!isset($boxSize['height']) || !is_int($boxSize['height'])) {
-                throw new \InvalidArgumentException('a height in a $boxSizes value was not an int');
+                throw new InvalidArgumentException('a height in a $boxSizes value was not an int');
             }
 
             if ($boxSize['width'] > $maxWidth || $boxSize['width'] <= 0) {
-                throw new \InvalidArgumentException('a $boxSizes width was not between 0 and $options["maxWidth"]');
+                throw new InvalidArgumentException('a $boxSizes width was not between 0 and $options["maxWidth"]');
             }
 
             if ($boxSize['height'] > $maxHeight || $boxSize['height'] <= 0) {
-                throw new \InvalidArgumentException('a $boxSizes height was not between 0 and $options["maxHeight"]');
+                throw new InvalidArgumentException('a $boxSizes height was not between 0 and $options["maxHeight"]');
             }
         }
 
@@ -113,21 +162,7 @@ final class Image
 
             $clone = clone $source;
 
-            $orientation = $clone->getImageOrientation();
-            switch ($orientation) {
-                case \Imagick::ORIENTATION_BOTTOMRIGHT:
-                    $clone->rotateimage('#fff', 180);
-                    $clone->stripImage();
-                    break;
-                case \Imagick::ORIENTATION_RIGHTTOP:
-                    $clone->rotateimage('#fff', 90);
-                    $clone->stripImage();
-                    break;
-                case \Imagick::ORIENTATION_LEFTBOTTOM:
-                    $clone->rotateimage('#fff', -90);
-                    $clone->stripImage();
-                    break;
-            }
+            self::rotateImage($clone);
 
             $width = $clone->getImageWidth();
             $height = $clone->getImageHeight();
@@ -216,7 +251,7 @@ final class Image
             }
 
             //put image in box
-            $canvas = self::getBackgroundCanvas($clone, $color, $boxWidth, $boxHeight);
+            $canvas = self::getBackgroundCanvas($source, $color, $blurBackground, $blurValue, $boxWidth, $boxHeight);
             if ($canvas->compositeImage($clone, \Imagick::COMPOSITE_ATOP, $targetX, $targetY) !== true) {
                 //cumbersome to test
                 throw new \Exception('Imagick::compositeImage() did not return true');//@codeCoverageIgnore
@@ -231,18 +266,37 @@ final class Image
         return $results;
     }
 
-    private static function getBackgroundCanvas(\Imagick $source, string $color, int $boxWidth, $boxHeight)
-    {
-        if ($color === 'blur') {
-            $canvas = new \Imagick();
-            $canvas->readImageBlob($source->getImageBlob());
-            $canvas->resizeImage($boxWidth, $boxHeight, \Imagick::FILTER_BOX, 15.0, false);
-            return $canvas;
+    private static function getBackgroundCanvas(
+        \Imagick $source,
+        string $color,
+        bool $blurBackground,
+        float $blurValue,
+        int $boxWidth,
+        int $boxHeight
+    ) : \Imagick {
+        if ($blurBackground || $color === 'blur') {
+            return self::getBlurredBackgroundCanvas($source, $blurValue, $boxWidth, $boxHeight);
         }
 
+        return self::getColoredBackgroundCanvas($color, $boxWidth, $boxHeight);
+    }
+
+    private static function getColoredBackgroundCanvas(string $color, int $boxWidth, int $boxHeight)
+    {
         $canvas = new \Imagick();
         $imageCreated = $canvas->newImage($boxWidth, $boxHeight, $color);
         Util::ensure(true, $imageCreated, 'Imagick::newImage() did not return true');
+        return $canvas;
+    }
+
+    private static function getBlurredBackgroundCanvas(
+        \Imagick $source,
+        float $blurValue,
+        int $boxWidth,
+        int $boxHeight
+    ) : \Imagick {
+        $canvas = clone $source;
+        $canvas->resizeImage($boxWidth, $boxHeight, \Imagick::FILTER_BOX, $blurValue, false);
         return $canvas;
     }
 
@@ -260,11 +314,11 @@ final class Image
      *
      * @return void
      *
-     * @throws \InvalidArgumentException if $destPath was not a string
-     * @throws \InvalidArgumentException if $options["format"] was not a string
-     * @throws \InvalidArgumentException if $options["directoryMode"] was not an int
-     * @throws \InvalidArgumentException if $options["fileMode"] was not an int
-     * @throws \InvalidArgumentException if $options["stripHeaders"] was not a bool
+     * @throws InvalidArgumentException if $destPath was not a string
+     * @throws InvalidArgumentException if $options["format"] was not a string
+     * @throws InvalidArgumentException if $options["directoryMode"] was not an int
+     * @throws InvalidArgumentException if $options["fileMode"] was not an int
+     * @throws InvalidArgumentException if $options["stripHeaders"] was not a bool
      * @throws \Exception
      */
     public static function write(\Imagick $source, string $destPath, array $options = [])
@@ -273,7 +327,7 @@ final class Image
         if (array_key_exists('format', $options)) {
             $format = $options['format'];
             if (!is_string($format)) {
-                throw new \InvalidArgumentException('$options["format"] was not a string');
+                throw new InvalidArgumentException('$options["format"] was not a string');
             }
         }
 
@@ -281,7 +335,7 @@ final class Image
         if (array_key_exists('directoryMode', $options)) {
             $directoryMode = $options['directoryMode'];
             if (!is_int($directoryMode)) {
-                throw new \InvalidArgumentException('$options["directoryMode"] was not an int');
+                throw new InvalidArgumentException('$options["directoryMode"] was not an int');
             }
         }
 
@@ -289,7 +343,7 @@ final class Image
         if (array_key_exists('fileMode', $options)) {
             $fileMode = $options['fileMode'];
             if (!is_int($fileMode)) {
-                throw new \InvalidArgumentException('$options["fileMode"] was not an int');
+                throw new InvalidArgumentException('$options["fileMode"] was not an int');
             }
         }
 
@@ -297,7 +351,7 @@ final class Image
         if (array_key_exists('stripHeaders', $options)) {
             $stripHeaders = $options['stripHeaders'];
             if ($stripHeaders !== false && $stripHeaders !== true) {
-                throw new \InvalidArgumentException('$options["stripHeaders"] was not a bool');
+                throw new InvalidArgumentException('$options["stripHeaders"] was not a bool');
             }
         }
 
@@ -340,7 +394,7 @@ final class Image
      *
      * @param string $path The image path.
      * @return void
-     * @throws \InvalidArgumentException if $path is not a string
+     * @throws InvalidArgumentException if $path is not a string
      * @throws \Exception if there is a failure stripping the headers
      * @throws \Exception if there is a failure writing the image back to path
      */
@@ -355,6 +409,28 @@ final class Image
         if ($imagick->writeImage($path) !== true) {
             //cumbersome to test
             throw new \Exception('Imagick::writeImage() did not return true');//@codeCoverageIgnore
+        }
+    }
+
+    /**
+     * @param \Imagick $imagick
+     */
+    private static function rotateImage(\Imagick $imagick)
+    {
+        $orientation = $imagick->getImageOrientation();
+        switch ($orientation) {
+            case \Imagick::ORIENTATION_BOTTOMRIGHT:
+                $imagick->rotateimage('#fff', 180);
+                $imagick->stripImage();
+                break;
+            case \Imagick::ORIENTATION_RIGHTTOP:
+                $imagick->rotateimage('#fff', 90);
+                $imagick->stripImage();
+                break;
+            case \Imagick::ORIENTATION_LEFTBOTTOM:
+                $imagick->rotateimage('#fff', -90);
+                $imagick->stripImage();
+                break;
         }
     }
 }
