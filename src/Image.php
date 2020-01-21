@@ -296,6 +296,7 @@ final class Image
         int $boxHeight
     ) : \Imagick {
         $canvas = clone $source;
+        self::rotateImage($canvas);
         $canvas->resizeImage($boxWidth, $boxHeight, \Imagick::FILTER_BOX, $blurValue, false);
         return $canvas;
     }
