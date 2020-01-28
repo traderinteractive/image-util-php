@@ -250,6 +250,11 @@ final class Image
                 }
             }
 
+            if ($clone->getImageHeight() === $boxHeight && $clone->getImageWidth() === $boxWidth) {
+                $results[$boxSizeKey] = $clone;
+                continue;
+            }
+
             //put image in box
             $canvas = self::getBackgroundCanvas($source, $color, $blurBackground, $blurValue, $boxWidth, $boxHeight);
             if ($canvas->compositeImage($clone, \Imagick::COMPOSITE_ATOP, $targetX, $targetY) !== true) {
@@ -261,6 +266,10 @@ final class Image
             //only relevant once written Imagick::stripImage() doesnt even have an effect until written
             //also the user can just call that function with the resultant $canvas
             $results[$boxSizeKey] = $canvas;
+        }
+
+        foreach ($cloneCache as $clone) {
+            $clone->destroy();
         }
 
         return $results;
