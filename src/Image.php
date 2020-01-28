@@ -263,6 +263,10 @@ final class Image
             $results[$boxSizeKey] = $canvas;
         }
 
+        foreach ($cloneCache as $clone) {
+            $clone->destroy();
+        }
+
         return $results;
     }
 
