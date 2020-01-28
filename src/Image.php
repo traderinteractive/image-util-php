@@ -250,6 +250,11 @@ final class Image
                 }
             }
 
+            if ($clone->getImageHeight() === $boxHeight && $clone->getImageWidth() === $boxWidth) {
+                $results[$boxSizeKey] = $clone;
+                continue;
+            }
+
             //put image in box
             $canvas = self::getBackgroundCanvas($source, $color, $blurBackground, $blurValue, $boxWidth, $boxHeight);
             if ($canvas->compositeImage($clone, \Imagick::COMPOSITE_ATOP, $targetX, $targetY) !== true) {
