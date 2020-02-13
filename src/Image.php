@@ -2,6 +2,7 @@
 
 namespace TraderInteractive\Util;
 
+use Imagick;
 use InvalidArgumentException;
 use TraderInteractive\Util;
 
@@ -56,9 +57,16 @@ final class Image
     ];
 
     /**
-     * Calls @see resizeMulti() with $boxWidth and $boxHeight as a single element in $boxSizes
+     * @param Imagick $source    The image magick object to resize
+     * @param int     $boxWidth  The final width of the image.
+     * @param int     $boxHeight The final height of the image.
+     * @param array   $options   Options for the resize operation.
+     *
+     * @return Imagick
+     *
+     * @throws \Exception Thrown if options are invalid.
      */
-    public static function resize(\Imagick $source, int $boxWidth, int $boxHeight, array $options = []) : \Imagick
+    public static function resize(Imagick $source, int $boxWidth, int $boxHeight, array $options = []) : Imagick
     {
         $options += self::DEFAULT_OPTIONS;
 
@@ -111,8 +119,6 @@ final class Image
             throw new InvalidArgumentException('a $boxSizes height was not between 0 and $options["maxHeight"]');
         }
 
-        $results = [];
-        $cloneCache = [];
         $clone = clone $source;
 
         self::rotateImage($clone);
@@ -153,26 +159,20 @@ final class Image
         //width and height
         while (true) {
             $widthReduced = false;
-            $widthIsHalf = false;
             if ($width > $targetWidth) {
                 $width = (int)($width / 2);
                 $widthReduced = true;
-                $widthIsHalf = true;
                 if ($width < $targetWidth) {
                     $width = $targetWidth;
-                    $widthIsHalf = false;
                 }
             }
 
             $heightReduced = false;
-            $heightIsHalf = false;
             if ($height > $targetHeight) {
                 $height = (int)($height / 2);
                 $heightReduced = true;
-                $heightIsHalf = true;
                 if ($height < $targetHeight) {
                     $height = $targetHeight;
-                    $heightIsHalf = false;
                 }
             }
 
@@ -180,19 +180,9 @@ final class Image
                 break;
             }
 
-            $cacheKey = "{$width}x{$height}";
-            if (isset($cloneCache[$cacheKey])) {
-                $clone = clone $cloneCache[$cacheKey];
-                continue;
-            }
-
             if ($clone->resizeImage($width, $height, \Imagick::FILTER_BOX, 1.0) !== true) {
                 //cumbersome to test
                 throw new \Exception('Imagick::resizeImage() did not return true');//@codeCoverageIgnore
-            }
-
-            if ($widthIsHalf && $heightIsHalf) {
-                $cloneCache[$cacheKey] = clone $clone;
             }
         }
 
@@ -204,10 +194,6 @@ final class Image
         }
 
         if ($clone->getImageHeight() === $boxHeight && $clone->getImageWidth() === $boxWidth) {
-            foreach ($cloneCache as $cachedClone) {
-                $cachedClone->destroy();
-            }
-
             return $clone;
         }
 
@@ -221,10 +207,6 @@ final class Image
         //reason we are not supporting the options in self::write() here is because format, and strip headers are
         //only relevant once written Imagick::stripImage() doesnt even have an effect until written
         //also the user can just call that function with the resultant $canvas
-        foreach ($cloneCache as $clone) {
-            $clone->destroy();
-        }
-
         return $canvas;
     }
 
