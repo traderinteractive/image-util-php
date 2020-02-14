@@ -155,31 +155,19 @@ final class Image
             }
         }
 
-        //do iterative downsize by halfs (2x2 binning is a common name) on dimensions that are bigger than target
-        //width and height
-        while (true) {
-            $widthReduced = false;
-            if ($width > $targetWidth) {
-                $width = (int)($width / 2);
-                $widthReduced = true;
-                if ($width < $targetWidth) {
-                    $width = $targetWidth;
-                }
-            }
+        $widthReduced = false;
+        if ($width > $targetWidth) {
+            $width = $targetWidth;
+            $widthReduced = true;
+        }
 
-            $heightReduced = false;
-            if ($height > $targetHeight) {
-                $height = (int)($height / 2);
-                $heightReduced = true;
-                if ($height < $targetHeight) {
-                    $height = $targetHeight;
-                }
-            }
+        $heightReduced = false;
+        if ($height > $targetHeight) {
+            $height = $targetHeight;
+            $heightReduced = true;
+        }
 
-            if (!$widthReduced && !$heightReduced) {
-                break;
-            }
-
+        if ($widthReduced || $heightReduced) {
             if ($clone->resizeImage($width, $height, \Imagick::FILTER_BOX, 1.0) !== true) {
                 //cumbersome to test
                 throw new \Exception('Imagick::resizeImage() did not return true');//@codeCoverageIgnore
