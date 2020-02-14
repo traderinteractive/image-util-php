@@ -70,11 +70,6 @@ final class Image
     {
         $options += self::DEFAULT_OPTIONS;
 
-        //algorithm inspired from http://today.java.net/pub/a/today/2007/04/03/perils-of-image-getscaledinstance.html
-        //use of 2x2 binning is arguably the best quality one will get downsizing and is what lots of hardware does in
-        //the photography field, while being reasonably fast. Upsizing is more subjective but you can't get much
-        //better than bicubic which is what is used here.
-
         $color = $options['color'];
         Util::ensure(true, is_string($color), InvalidArgumentException::class, ['$options["color"] was not a string']);
 
