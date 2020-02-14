@@ -275,7 +275,6 @@ final class ImageTest extends TestCase
         $source->readImage(__DIR__ . '/_files/portrait.jpg');
         $options = ['upsize' => true, 'bestfit' => false, 'blurBackground' => true, 'blurValue' => 30.0];
         $actual = Image::resize($source, 1024, 768, $options);
-        $actual->writeImage(__DIR__ . '/_files/blur-30.jpg');
 
         $expected = new \Imagick();
         $expected->readImage(__DIR__ . '/_files/blur-30.jpg');
