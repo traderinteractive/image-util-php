@@ -31,7 +31,6 @@ final class ImageTest extends TestCase
      *
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeDownsizeToMoreVerticalAspect()
     {
@@ -69,7 +68,6 @@ final class ImageTest extends TestCase
      *
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeDownsizeToMoreHorizontalAspect()
     {
@@ -107,7 +105,6 @@ final class ImageTest extends TestCase
      *
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeUpsizeToMoreHorizontalAspectWithoutGrow()
     {
@@ -145,7 +142,6 @@ final class ImageTest extends TestCase
      *
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeUpsizeToMoreHorizontalAspectWithGrow()
     {
@@ -183,7 +179,6 @@ final class ImageTest extends TestCase
      *
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeUpsizeToMoreVerticalAspect()
     {
@@ -219,7 +214,6 @@ final class ImageTest extends TestCase
     /**
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeWithUpsizeAndBestFit()
     {
@@ -234,7 +228,6 @@ final class ImageTest extends TestCase
     /**
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeWithColorOfBlur()
     {
@@ -250,7 +243,6 @@ final class ImageTest extends TestCase
     /**
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeWithBlurBackground()
     {
@@ -267,7 +259,6 @@ final class ImageTest extends TestCase
     /**
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeWithBurredBackgroundWithCustomBlurValue()
     {
@@ -394,7 +385,6 @@ final class ImageTest extends TestCase
      * Verify images are rotated according to EXIF header
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeOrientation()
     {
