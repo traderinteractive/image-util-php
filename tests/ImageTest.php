@@ -497,9 +497,9 @@ final class ImageTest extends TestCase
 
         $beforeSingle = microtime(true);
         for ($i = 0; $i < $count; ++$i) {
-            Image::resize($source, 1100, 400);
-            Image::resize($source, 100, 400);
-            Image::resize($source, 10, 40);
+            Image::resizeMulti($source, [['width' => 1100, 'height' => 400]]);
+            Image::resizeMulti($source, [['width' => 100, 'height' => 400]]);
+            Image::resizeMulti($source, [['width' => 10, 'height' => 40]]);
         }
 
         $singleTime = microtime(true) - $beforeSingle;
