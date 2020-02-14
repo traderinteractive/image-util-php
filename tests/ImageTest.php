@@ -244,7 +244,7 @@ final class ImageTest extends TestCase
         $expected = new \Imagick();
         $expected->readImage(__DIR__ . '/_files/blur.jpg');
         $comparison = $expected->compareImages($actual, \Imagick::METRIC_UNDEFINED);
-        $this->assertGreaterThanOrEqual(.999, $comparison[1]);
+        $this->assertGreaterThanOrEqual(.99, $comparison[1]);
     }
 
     /**
@@ -261,7 +261,7 @@ final class ImageTest extends TestCase
         $expected = new \Imagick();
         $expected->readImage(__DIR__ . '/_files/blur.jpg');
         $comparison = $expected->compareImages($actual, \Imagick::METRIC_UNDEFINED);
-        $this->assertGreaterThanOrEqual(.999, $comparison[1]);
+        $this->assertGreaterThanOrEqual(.99, $comparison[1]);
     }
 
     /**
