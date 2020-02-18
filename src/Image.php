@@ -2,6 +2,7 @@
 
 namespace TraderInteractive\Util;
 
+use Imagick;
 use InvalidArgumentException;
 use TraderInteractive\Util;
 
@@ -56,12 +57,140 @@ final class Image
     ];
 
     /**
-     * Calls @see resizeMulti() with $boxWidth and $boxHeight as a single element in $boxSizes
+     * @param Imagick $source    The image magick object to resize
+     * @param int     $boxWidth  The final width of the image.
+     * @param int     $boxHeight The final height of the image.
+     * @param array   $options   Options for the resize operation.
+     *
+     * @return Imagick
+     *
+     * @throws \Exception Thrown if options are invalid.
      */
-    public static function resize(\Imagick $source, int $boxWidth, int $boxHeight, array $options = []) : \Imagick
+    public static function resize(Imagick $source, int $boxWidth, int $boxHeight, array $options = []) : Imagick
     {
-        $results = self::resizeMulti($source, [['width' => $boxWidth, 'height' => $boxHeight]], $options);
-        return $results[0];
+        $options += self::DEFAULT_OPTIONS;
+
+        $color = $options['color'];
+        Util::ensure(true, is_string($color), InvalidArgumentException::class, ['$options["color"] was not a string']);
+
+        $upsize = $options['upsize'];
+        Util::ensure(true, is_bool($upsize), InvalidArgumentException::class, ['$options["upsize"] was not a bool']);
+
+        $bestfit = $options['bestfit'];
+        Util::ensure(true, is_bool($bestfit), InvalidArgumentException::class, ['$options["bestfit"] was not a bool']);
+
+        $blurBackground = $options['blurBackground'];
+        Util::ensure(
+            true,
+            is_bool($blurBackground),
+            InvalidArgumentException::class,
+            ['$options["blurBackground"] was not a bool']
+        );
+
+        $blurValue = $options['blurValue'];
+        Util::ensure(
+            true,
+            is_float($blurValue),
+            InvalidArgumentException::class,
+            ['$options["blurValue"] was not a float']
+        );
+        $maxWidth = $options['maxWidth'];
+        Util::ensure(true, is_int($maxWidth), InvalidArgumentException::class, ['$options["maxWidth"] was not an int']);
+
+        $maxHeight = $options['maxHeight'];
+        Util::ensure(
+            true,
+            is_int($maxHeight),
+            InvalidArgumentException::class,
+            ['$options["maxHeight"] was not an int']
+        );
+
+
+        if ($boxWidth > $maxWidth || $boxWidth <= 0) {
+            throw new InvalidArgumentException('a $boxSizes width was not between 0 and $options["maxWidth"]');
+        }
+
+        if ($boxHeight > $maxHeight || $boxHeight <= 0) {
+            throw new InvalidArgumentException('a $boxSizes height was not between 0 and $options["maxHeight"]');
+        }
+
+        $clone = clone $source;
+
+        self::rotateImage($clone);
+
+        $width = $clone->getImageWidth();
+        $height = $clone->getImageHeight();
+
+        //ratio over 1 is horizontal, under 1 is vertical
+        $boxRatio = $boxWidth / $boxHeight;
+        //height should be positive since I didnt find a way you could get zero into imagick
+        $originalRatio = $width / $height;
+
+        $targetWidth = null;
+        $targetHeight = null;
+        $targetX = null;
+        $targetY = null;
+        if ($width < $boxWidth && $height < $boxHeight && !$upsize) {
+            $targetWidth = $width;
+            $targetHeight = $height;
+            $targetX = ($boxWidth - $width) / 2;
+            $targetY = ($boxHeight - $height) / 2;
+        } else {
+            //if box is more vertical than original
+            if ($boxRatio < $originalRatio) {
+                $targetWidth = $boxWidth;
+                $targetHeight = (int)((double)$boxWidth / $originalRatio);
+                $targetX = 0;
+                $targetY = ($boxHeight - $targetHeight) / 2;
+            } else {
+                $targetWidth = (int)((double)$boxHeight * $originalRatio);
+                $targetHeight = $boxHeight;
+                $targetX = ($boxWidth - $targetWidth) / 2;
+                $targetY = 0;
+            }
+        }
+
+        $widthReduced = false;
+        if ($width > $targetWidth) {
+            $width = $targetWidth;
+            $widthReduced = true;
+        }
+
+        $heightReduced = false;
+        if ($height > $targetHeight) {
+            $height = $targetHeight;
+            $heightReduced = true;
+        }
+
+        if ($widthReduced || $heightReduced) {
+            if ($clone->resizeImage($width, $height, \Imagick::FILTER_BOX, 1.0) !== true) {
+                //cumbersome to test
+                throw new \Exception('Imagick::resizeImage() did not return true');//@codeCoverageIgnore
+            }
+        }
+
+        if ($upsize && ($width < $targetWidth || $height < $targetHeight)) {
+            if ($clone->resizeImage($targetWidth, $targetHeight, \Imagick::FILTER_CUBIC, 1.0, $bestfit) !== true) {
+                //cumbersome to test
+                throw new \Exception('Imagick::resizeImage() did not return true');//@codeCoverageIgnore
+            }
+        }
+
+        if ($clone->getImageHeight() === $boxHeight && $clone->getImageWidth() === $boxWidth) {
+            return $clone;
+        }
+
+        //put image in box
+        $canvas = self::getBackgroundCanvas($clone, $color, $blurBackground, $blurValue, $boxWidth, $boxHeight);
+        if ($canvas->compositeImage($clone, \Imagick::COMPOSITE_ATOP, $targetX, $targetY) !== true) {
+            //cumbersome to test
+            throw new \Exception('Imagick::compositeImage() did not return true');//@codeCoverageIgnore
+        }
+
+        //reason we are not supporting the options in self::write() here is because format, and strip headers are
+        //only relevant once written Imagick::stripImage() doesnt even have an effect until written
+        //also the user can just call that function with the resultant $canvas
+        return $canvas;
     }
 
     /**

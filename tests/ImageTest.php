@@ -31,7 +31,6 @@ final class ImageTest extends TestCase
      *
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeDownsizeToMoreVerticalAspect()
     {
@@ -69,7 +68,6 @@ final class ImageTest extends TestCase
      *
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeDownsizeToMoreHorizontalAspect()
     {
@@ -107,7 +105,6 @@ final class ImageTest extends TestCase
      *
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeUpsizeToMoreHorizontalAspectWithoutGrow()
     {
@@ -145,7 +142,6 @@ final class ImageTest extends TestCase
      *
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeUpsizeToMoreHorizontalAspectWithGrow()
     {
@@ -183,7 +179,6 @@ final class ImageTest extends TestCase
      *
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeUpsizeToMoreVerticalAspect()
     {
@@ -219,7 +214,6 @@ final class ImageTest extends TestCase
     /**
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeWithUpsizeAndBestFit()
     {
@@ -234,7 +228,6 @@ final class ImageTest extends TestCase
     /**
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeWithColorOfBlur()
     {
@@ -244,13 +237,12 @@ final class ImageTest extends TestCase
         $expected = new \Imagick();
         $expected->readImage(__DIR__ . '/_files/blur.jpg');
         $comparison = $expected->compareImages($actual, \Imagick::METRIC_UNDEFINED);
-        $this->assertGreaterThanOrEqual(.999, $comparison[1]);
+        $this->assertGreaterThanOrEqual(.99, $comparison[1]);
     }
 
     /**
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeWithBlurBackground()
     {
@@ -261,13 +253,12 @@ final class ImageTest extends TestCase
         $expected = new \Imagick();
         $expected->readImage(__DIR__ . '/_files/blur.jpg');
         $comparison = $expected->compareImages($actual, \Imagick::METRIC_UNDEFINED);
-        $this->assertGreaterThanOrEqual(.999, $comparison[1]);
+        $this->assertGreaterThanOrEqual(.99, $comparison[1]);
     }
 
     /**
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeWithBurredBackgroundWithCustomBlurValue()
     {
@@ -275,7 +266,6 @@ final class ImageTest extends TestCase
         $source->readImage(__DIR__ . '/_files/portrait.jpg');
         $options = ['upsize' => true, 'bestfit' => false, 'blurBackground' => true, 'blurValue' => 30.0];
         $actual = Image::resize($source, 1024, 768, $options);
-        $actual->writeImage(__DIR__ . '/_files/blur-30.jpg');
 
         $expected = new \Imagick();
         $expected->readImage(__DIR__ . '/_files/blur-30.jpg');
@@ -395,7 +385,6 @@ final class ImageTest extends TestCase
      * Verify images are rotated according to EXIF header
      * @test
      * @covers ::resize
-     * @covers ::resizeMulti
      */
     public function resizeOrientation()
     {
@@ -508,9 +497,9 @@ final class ImageTest extends TestCase
 
         $beforeSingle = microtime(true);
         for ($i = 0; $i < $count; ++$i) {
-            Image::resize($source, 1100, 400);
-            Image::resize($source, 100, 400);
-            Image::resize($source, 10, 40);
+            Image::resizeMulti($source, [['width' => 1100, 'height' => 400]]);
+            Image::resizeMulti($source, [['width' => 100, 'height' => 400]]);
+            Image::resizeMulti($source, [['width' => 10, 'height' => 40]]);
         }
 
         $singleTime = microtime(true) - $beforeSingle;
