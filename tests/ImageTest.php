@@ -2,6 +2,7 @@
 
 namespace TraderInteractive\Util;
 
+use PHPUnit\Framework\Constraint\GreaterThan;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -231,13 +232,10 @@ final class ImageTest extends TestCase
      */
     public function resizeWithColorOfBlur()
     {
-        $source = new \Imagick();
-        $source->readImage(__DIR__ . '/_files/portrait.jpg');
+        $source = $this->getTestImage('portrait.jpg');
         $actual = Image::resize($source, 1024, 768, ['upsize' => true, 'bestfit' => false, 'color' => 'blur']);
-        $expected = new \Imagick();
-        $expected->readImage(__DIR__ . '/_files/blur.jpg');
-        $comparison = $expected->compareImages($actual, \Imagick::METRIC_UNDEFINED);
-        $this->assertGreaterThanOrEqual(.99, $comparison[1]);
+        $expected = $this->getTestImage('blur.jpg');
+        $this->assertSameImage($expected, $actual);
     }
 
     /**
@@ -246,14 +244,10 @@ final class ImageTest extends TestCase
      */
     public function resizeWithBlurBackground()
     {
-        $source = new \Imagick();
-        $source->readImage(__DIR__ . '/_files/portrait.jpg');
+        $source = $this->getTestImage('portrait.jpg');
         $actual = Image::resize($source, 1024, 768, ['upsize' => true, 'bestfit' => false, 'blurBackground' => true]);
-
-        $expected = new \Imagick();
-        $expected->readImage(__DIR__ . '/_files/blur.jpg');
-        $comparison = $expected->compareImages($actual, \Imagick::METRIC_UNDEFINED);
-        $this->assertGreaterThanOrEqual(.99, $comparison[1]);
+        $expected = $this->getTestImage('blur.jpg');
+        $this->assertSameImage($expected, $actual);
     }
 
     /**
@@ -262,15 +256,11 @@ final class ImageTest extends TestCase
      */
     public function resizeWithBurredBackgroundWithCustomBlurValue()
     {
-        $source = new \Imagick();
-        $source->readImage(__DIR__ . '/_files/portrait.jpg');
+        $source = $this->getTestImage('portrait.jpg');
         $options = ['upsize' => true, 'bestfit' => false, 'blurBackground' => true, 'blurValue' => 30.0];
         $actual = Image::resize($source, 1024, 768, $options);
-
-        $expected = new \Imagick();
-        $expected->readImage(__DIR__ . '/_files/blur-30.jpg');
-        $comparison = $expected->compareImages($actual, \Imagick::METRIC_UNDEFINED);
-        $this->assertGreaterThanOrEqual(.999, $comparison[1]);
+        $expected = $this->getTestImage('blur-30.jpg');
+        $this->assertSameImage($expected, $actual);
     }
 
     /**
@@ -541,6 +531,66 @@ final class ImageTest extends TestCase
 
     /**
      * @test
+     * @covers ::resize
+     */
+    public function resizeTransparentImageWithTransparentBackground()
+    {
+        $source = $this->getTestImage('transparent.png');
+        $actual = Image::resize($source, 128, 128, ['color' => 'transparent']);
+        $expected = $this->getTestImage('transparent-resize.png');
+        $this->assertSameImage($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @covers ::resize
+     */
+    public function resizeTransparentImageWithColorBackground()
+    {
+        $source = $this->getTestImage('transparent.png');
+        $actual = Image::resize($source, 128, 128, ['color' => 'green']);
+        $expected = $this->getTestImage('transparent-resize-color.png');
+        $this->assertSameImage($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @covers ::resize
+     */
+    public function resizeTransparentImageWithUpsize()
+    {
+        $source = $this->getTestImage('transparent.png');
+        $actual = Image::resize($source, 128, 128, ['upsize' => true]);
+        $expected = $this->getTestImage('transparent-upsize.png');
+        $this->assertSameImage($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @covers ::resize
+     */
+    public function resizeTransparentImageWithColorOfBlur()
+    {
+        $source = $this->getTestImage('transparent.png');
+        $actual = Image::resize($source, 128, 128, ['color' => 'blur']);
+        $expected = $this->getTestImage('transparent-blur.png');
+        $this->assertSameImage($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @covers ::resize
+     */
+    public function resizeTransparentImageWithBlurBackground()
+    {
+        $source = $this->getTestImage('transparent.png');
+        $actual = Image::resize($source, 128, 128, ['blurBackground' => true]);
+        $expected = $this->getTestImage('transparent-blur.png');
+        $this->assertSameImage($expected, $actual);
+    }
+
+    /**
+     * @test
      * @covers ::write
      */
     public function write()
@@ -641,5 +691,18 @@ final class ImageTest extends TestCase
     public function stripHeadersMissingImage()
     {
         Image::stripHeaders("{$this->tempDir}/doesnotexist.jpg");
+    }
+
+    private function assertSameImage(\Imagick $expected, \Imagick $actual)
+    {
+        $comparison = $expected->compareImages($actual, \Imagick::METRIC_UNDEFINED);
+        $this->assertThat($comparison[1], new GreaterThan(.99));
+    }
+
+    private function getTestImage(string $filename) : \Imagick
+    {
+        $image = new \Imagick();
+        $image->readImage("{$this->sourceFilesDir}/{$filename}");
+        return $image;
     }
 }
