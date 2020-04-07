@@ -182,7 +182,7 @@ final class Image
 
         //put image in box
         $canvas = self::getBackgroundCanvas($clone, $color, $blurBackground, $blurValue, $boxWidth, $boxHeight);
-        if ($canvas->compositeImage($clone, \Imagick::COMPOSITE_ATOP, $targetX, $targetY) !== true) {
+        if ($canvas->compositeImage($clone, Imagick::COMPOSITE_DEFAULT, $targetX, $targetY) !== true) {
             //cumbersome to test
             throw new \Exception('Imagick::compositeImage() did not return true');//@codeCoverageIgnore
         }
