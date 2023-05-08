@@ -11,21 +11,8 @@ use PHPUnit\Framework\TestCase;
  */
 final class ImageTest extends TestCase
 {
-    private $sourceFilesDir;
-    private $tempDir;
-
-    public function setUp()
-    {
-        $this->sourceFilesDir = __DIR__ . '/_files';
-        $this->tempDir = sys_get_temp_dir() . '/imageUtilTest';
-        if (is_dir($this->tempDir)) {
-            foreach (glob("{$this->tempDir}/*") as $file) {
-                unlink($file);
-            }
-
-            rmdir($this->tempDir);
-        }
-    }
+    private $sourceFilesDir = __DIR__ . '/_files';
+    private $tempDir = '/tmp/image-util';
 
     /**
      * Downsize ratio 2.0 to 0.25
@@ -267,11 +254,11 @@ final class ImageTest extends TestCase
      * @test
      * @covers ::resize
      * @covers ::resizeMulti
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage a $boxSizes width was not between 0 and $options["maxWidth"]
      */
     public function resizeZeroBoxWidth()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('a $boxSizes width was not between 0 and $options["maxWidth"]');
         Image::resize(new \Imagick(), 0, 10);
     }
 
@@ -279,11 +266,11 @@ final class ImageTest extends TestCase
      * @test
      * @covers ::resize
      * @covers ::resizeMulti
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage a $boxSizes width was not between 0 and $options["maxWidth"]
      */
     public function resizeLargeBoxWidth()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('a $boxSizes width was not between 0 and $options["maxWidth"]');
         Image::resize(new \Imagick(), 10001, 10, ['maxWidth' => 10000]);
     }
 
@@ -291,11 +278,11 @@ final class ImageTest extends TestCase
      * @test
      * @covers ::resize
      * @covers ::resizeMulti
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage a $boxSizes height was not between 0 and $options["maxHeight"]
      */
     public function resizeZeroBoxHeight()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('a $boxSizes height was not between 0 and $options["maxHeight"]');
         Image::resize(new \Imagick(), 10, 0);
     }
 
@@ -303,11 +290,11 @@ final class ImageTest extends TestCase
      * @test
      * @covers ::resize
      * @covers ::resizeMulti
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage a $boxSizes height was not between 0 and $options["maxHeight"]
      */
     public function resizeLargeBoxHeight()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('a $boxSizes height was not between 0 and $options["maxHeight"]');
         Image::resize(new \Imagick(), 10, 10001, ['maxHeight' => 10000]);
     }
 
@@ -315,11 +302,11 @@ final class ImageTest extends TestCase
      * @test
      * @covers ::resize
      * @covers ::resizeMulti
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $options["color"] was not a string
      */
     public function resizeNonStringColor()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('$options["color"] was not a string');
         Image::resize(new \Imagick(), 10, 10, ['color' => 0]);
     }
 
@@ -327,11 +314,11 @@ final class ImageTest extends TestCase
      * @test
      * @covers ::resize
      * @covers ::resizeMulti
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $options["maxWidth"] was not an int
      */
     public function resizeonIntMaxWidth()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('$options["maxWidth"] was not an int');
         Image::resize(new \Imagick(), 10, 10, ['maxWidth' => 'not int']);
     }
 
@@ -339,11 +326,11 @@ final class ImageTest extends TestCase
      * @test
      * @covers ::resize
      * @covers ::resizeMulti
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $options["maxHeight"] was not an int
      */
     public function resizeNonIntMaxHeight()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('$options["maxHeight"] was not an int');
         Image::resize(new \Imagick(), 10, 10, ['maxHeight' => 'not int']);
     }
 
@@ -351,11 +338,11 @@ final class ImageTest extends TestCase
      * @test
      * @covers ::resize
      * @covers ::resizeMulti
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $options["upsize"] was not a bool
      */
     public function resizeNonBoolUpsize()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('$options["upsize"] was not a bool');
         Image::resize(new \Imagick(), 10, 10, ['upsize' => 'not bool']);
     }
 
@@ -363,11 +350,11 @@ final class ImageTest extends TestCase
      * @test
      * @covers ::resize
      * @covers ::resizeMulti
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $options["bestfit"] was not a bool
      */
     public function resizeNonBoolBestFit()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('$options["bestfit"] was not a bool');
         Image::resize(new \Imagick(), 10, 10, ['bestfit' => 'not bool']);
     }
 
@@ -510,22 +497,22 @@ final class ImageTest extends TestCase
     /**
      * @test
      * @covers ::resizeMulti
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage a width in a $boxSizes value was not an int
      */
     public function resizeMultiNonIntWidth()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('a width in a $boxSizes value was not an int');
         Image::resizeMulti(new \Imagick(), [['width' => true, 'height' => 10]]);
     }
 
     /**
      * @test
      * @covers ::resizeMulti
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage a height in a $boxSizes value was not an int
      */
     public function resizeMultiNonIntHeight()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('a height in a $boxSizes value was not an int');
         Image::resizeMulti(new \Imagick(), [['width' => 10, 'height' => true]]);
     }
 
@@ -621,44 +608,44 @@ final class ImageTest extends TestCase
     /**
      * @test
      * @covers ::write
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $options["directoryMode"] was not an int
      */
     public function writeNonIntDirectoryMode()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('$options["directoryMode"] was not an int');
         Image::write(new \Imagick(), 'not under test', ['directoryMode' => 'not int']);
     }
 
     /**
      * @test
      * @covers ::write
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $options["fileMode"] was not an int
      */
     public function writeNonIntFileMode()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('$options["fileMode"] was not an int');
         Image::write(new \Imagick(), 'not under test', ['fileMode' => 'not int']);
     }
 
     /**
      * @test
      * @covers ::write
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $options["format"] was not a string
      */
     public function writeNonStringFormat()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('$options["format"] was not a string');
         Image::write(new \Imagick(), 'not under test', ['format' => true]);
     }
 
     /**
      * @test
      * @covers ::write
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage $options["stripHeaders"] was not a bool
      */
     public function writeNonBoolStripHeaders()
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('$options["stripHeaders"] was not a bool');
         Image::write(new \Imagick(), 'not under test', ['stripHeaders' => 'not bool']);
     }
 
@@ -672,7 +659,10 @@ final class ImageTest extends TestCase
     {
         $path = "{$this->tempDir}/stripHeaders.jpg";
 
-        mkdir($this->tempDir);
+        if (!file_exists($this->tempDir)) {
+            mkdir($this->tempDir);
+        }
+
         copy("{$this->sourceFilesDir}/exif.jpg", $path);
 
         Image::stripHeaders($path);
@@ -686,10 +676,10 @@ final class ImageTest extends TestCase
      *
      * @test
      * @covers ::stripHeaders
-     * @expectedException \ImagickException
      */
     public function stripHeadersMissingImage()
     {
+        $this->expectException(\ImagickException::class);
         Image::stripHeaders("{$this->tempDir}/doesnotexist.jpg");
     }
 
