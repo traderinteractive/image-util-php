@@ -2,7 +2,6 @@
 
 [![Build Status](https://travis-ci.org/traderinteractive/image-util-php.svg?branch=master)](https://travis-ci.org/traderinteractive/image-util-php)
 [![Code Quality](https://scrutinizer-ci.com/g/traderinteractive/image-util-php/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/traderinteractive/image-util-php/?branch=master)
-[![Coverage Status](https://coveralls.io/repos/github/traderinteractive/image-util-php/badge.svg?branch=master)](https://coveralls.io/github/traderinteractive/image-util-php?branch=master)
 
 [![Latest Stable Version](https://poser.pugx.org/traderinteractive/image-util/v/stable)](https://packagist.org/packages/traderinteractive/image-util)
 [![Latest Unstable Version](https://poser.pugx.org/traderinteractive/image-util/v/unstable)](https://packagist.org/packages/traderinteractive/image-util)
