@@ -552,9 +552,13 @@ final class Image
     }
 
     /**
+     * Rotate an image according to EXIF header.
+     *
      * @param \Imagick $imagick
+     *
+     * @return void
      */
-    private static function rotateImage(\Imagick $imagick)
+    public static function rotateImage(\Imagick $imagick)
     {
         $orientation = $imagick->getImageOrientation();
         switch ($orientation) {
