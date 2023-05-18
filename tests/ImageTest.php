@@ -362,6 +362,7 @@ final class ImageTest extends TestCase
      * Verify images are rotated according to EXIF header
      * @test
      * @covers ::resize
+     * @covers ::rotateImage
      */
     public function resizeOrientation()
     {
